@@ -32,13 +32,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Test with pytest
-      run: python3 main.py > test_stats.txt
+      run: python3 main.py > test_stats_${{matrix.python-version}}.txt
 
     - name: Upload Unit Test Results
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Unit Test Results (Python ${{ matrix.python-version }})
-        path: test_stats.txt
-
+        name: Test stats (Python ${{ matrix.python-version }})
+        path: test_stats_${{matrix.python-version}}.txt
 
