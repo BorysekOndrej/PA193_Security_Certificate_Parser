@@ -54,6 +54,8 @@ def main():
     raw_results = score_all_json_files()
     stats_avg, stats_max = statistics(raw_results)
     
+    print(f"Number of documents: {len(raw_results)}")
+
     print("Avg score:")
     pprint(stats_avg)
 
