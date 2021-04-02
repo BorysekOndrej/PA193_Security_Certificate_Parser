@@ -27,16 +27,24 @@ class ParsingResult:
         return utils.convert_dict_to_json_string(self.make_dict())
 
 
-def parse_cert(input_lines: List[str]) -> ParsingResult:
-    answer = ParsingResult()
-    # todo: :)
-    return answer
+class ParseDocument():
+    def __init__(self, input_lines: List[str]):
+        self.result = ParsingResult()
+        self.complete_parse()
+
+    def complete_parse(self):
+        # todo: :)
+        pass
+    
+    def get_results(self) -> ParsingResult:
+        return self.result
 
 
 def main():
     for input_filename in utils.list_input_files():
         lines = utils.load_file(input_filename)
-        parsingResult: ParsingResult = parse_cert(lines)
+        pd = ParseDocument(lines)
+        parsingResult: ParsingResult = pd.get_results()
         
         with open(utils.input_filename_to_our_output_filename(input_filename), "w", encoding="utf8") as f:
             f.write(parsingResult.make_json())
