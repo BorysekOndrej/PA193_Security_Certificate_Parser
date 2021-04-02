@@ -1,0 +1,3 @@
+[submodule "dataset"]
+	path = dataset
+	url = https://github.com/BorysekOndrej/PA193_Security_Certificate_Parser_Dataset
