@@ -1,6 +1,7 @@
 # PA193_Security_Certificate_Parser
 Repository for a school project from PA193.
 
+[Link](https://is.muni.cz/auth/el/fi/jaro2021/PA193/um/project/pa193_project_overview_2021.pdf) to the semestral  project assignment. 
 
 
 #### Quickstart
