@@ -29,6 +29,7 @@ class ParsingResult:
 
 class ParseDocument():
     def __init__(self, input_lines: List[str]):
+        self.lines = input_lines
         self.result = ParsingResult()
         self.complete_parse()
 
