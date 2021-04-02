@@ -2,7 +2,7 @@ from typing import List, Dict
 import json
 import utils
 import test_our_implementation
-
+from config import OUTPUT_FOLDER
 
 class ParsingResult:
     def __init__(self):
@@ -42,6 +42,8 @@ class ParseDocument():
 
 
 def main():
+    utils.mkdir(OUTPUT_FOLDER)
+
     for input_filename in utils.list_input_files():
         lines = utils.load_file(input_filename)
         pd = ParseDocument(lines)
@@ -51,6 +53,7 @@ def main():
             f.write(parsingResult.make_json())
     
     test_our_implementation.main()
+
 
 if __name__ == "__main__":
     main()
