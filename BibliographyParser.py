@@ -21,7 +21,7 @@ class BibliographyParser:
         # 65% of text.
         self.symbolsToSkip = 0.65
 
-    def preprocess(self, input_lines: List[str]):
+    def preprocess(self, input_lines: List[str]) -> str:
         """ Preprocess input list of strings by concatenation of the lines and taking only predefined % of text."""
         text = " ".join(input_lines)
         offset = int(len(text) * self.symbolsToSkip)
