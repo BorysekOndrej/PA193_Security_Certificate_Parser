@@ -32,7 +32,7 @@ class BibliographyParser:
         """ Remove all redundant whitespaces and newline characters. """
         return re.sub(self.postprocessPattern, ' ', string).rstrip()
 
-    def parse(self, input_lines: List[str]):
+    def parse(self, input_lines: List[str]) -> Dict[str, str]:
         """ Parse input text and find bibliography. """
         result: Dict[str, str] = {}
         text = self.preprocess(input_lines)
