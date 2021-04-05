@@ -28,7 +28,7 @@ class BibliographyParser:
         subtext = text[offset:]
         return subtext
 
-    def postprocess(self, string: str):
+    def postprocess(self, string: str) -> str:
         """ Remove all redundant whitespaces and newline characters. """
         return re.sub(self.postprocessPattern, ' ', string).rstrip()
 
