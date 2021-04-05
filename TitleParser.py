@@ -1,5 +1,4 @@
 import re
-from typing import List, Dict
 from typing import List, Dict, Tuple
 
 
@@ -62,8 +61,6 @@ class TitleParser:
         a = TitleParser.basic_transform("\n".join(self.input_lines[:self.max_first_x_lines]))
         return self._correct_title in a
 
-
-
     def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str) -> Tuple[str, bool]:
         b = TitleParser.cannonize_string("\n".join(self.input_lines))
 
@@ -83,13 +80,25 @@ class TitleParser:
         magic_phrase_start = "This Certification Report states the outcome of the Common Criteria security evaluation of the"
         magic_phrase_end = ". The developer"
         return self.extract_from_template(magic_phrase_start, magic_phrase_end)
+
+    def extract_from_template2(self) -> Tuple[str, bool]:
+        magic_phrase_start = "The Target of Evaluation (TOE) is called: "
+        magic_phrase_end = ". The following table"
+        return self.extract_from_template(magic_phrase_start, magic_phrase_end)
+
     def parse(self, input_lines: List[str]) -> str:
         self.input_lines = input_lines
 
+        # print(self.check_correct_solution_is_somewhere_in_there())
 
         answer_template1, template1_found = self.extract_from_template1()
         if template1_found:
             return answer_template1
+
+        answer_template2, template2_found = self.extract_from_template2()
+        if template2_found:
+            return answer_template2
+
         answer = TitleParser.basic_transform(self.__fallback())
         # print(answer)
         # print(self._correct_title)
