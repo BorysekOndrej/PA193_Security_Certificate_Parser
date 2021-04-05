@@ -12,6 +12,20 @@ class TitleParser:
         self._correct_title = None
         pass
 
+    def __until_first_double_newline(self) -> str:
+        """
+        The idea was to take first lines until double newline was encoutered. It doesn't work nearly as well as I would have hoped.
+        """
+        consequiteve_newlines = ""
+        for i in range(len(self.input_lines[:self.max_first_x_lines])):
+            if consequiteve_newlines == 2:
+                return TitleParser.basic_transform(self.__take_first_n_lines(i))
+            if len(self.input_lines[i].strip()) == 0:
+                consequiteve_newlines += 1
+            else:
+                consequiteve_newlines = 0
+        return self.__fallback()
+
     def __take_first_n_lines(self, n: int) -> str:
         return " ".join(self.input_lines[:n])
 
