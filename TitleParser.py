@@ -76,28 +76,27 @@ class TitleParser:
         # print(b[title_start:title_end])
         return b[title_start:title_end], True
 
-    def extract_from_template1(self) -> Tuple[str, bool]:
-        magic_phrase_start = "This Certification Report states the outcome of the Common Criteria security evaluation of the"
-        magic_phrase_end = ". The developer"
-        return self.extract_from_template(magic_phrase_start, magic_phrase_end)
-
-    def extract_from_template2(self) -> Tuple[str, bool]:
-        magic_phrase_start = "The Target of Evaluation (TOE) is called: "
-        magic_phrase_end = ". The following table"
-        return self.extract_from_template(magic_phrase_start, magic_phrase_end)
+    def try_templates(self) -> Tuple[str, bool]:
+        templates = [
+            ("This Certification Report states the outcome of the Common Criteria security evaluation of the",
+             ". The developer"),
+            ("The Target of Evaluation (TOE) is called: ",
+             ". The following table"),
+        ]
+        for x in templates:
+            title, found = self.extract_from_template(x[0], x[1])
+            if found:
+                return title, True
+        return "", False
 
     def parse(self, input_lines: List[str]) -> str:
         self.input_lines = input_lines
 
         # print(self.check_correct_solution_is_somewhere_in_there())
 
-        answer_template1, template1_found = self.extract_from_template1()
-        if template1_found:
-            return answer_template1
-
-        answer_template2, template2_found = self.extract_from_template2()
-        if template2_found:
-            return answer_template2
+        title, found = self.try_templates()
+        if found:
+            return title
 
         answer = TitleParser.basic_transform(self.__fallback())
         # print(answer)
