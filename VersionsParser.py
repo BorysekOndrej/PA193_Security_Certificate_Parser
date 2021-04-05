@@ -3,7 +3,14 @@ from typing import List, Dict, Pattern, Set
 
 
 class VersionsParser:
+    """
+    A class for parsing versions of algorithms/components.
+    """
     def __init__(self, input_lines: List[str]):
+        """
+        Initializes the parser to detect versions of specific components from input_lines
+        :param input_lines: the lines to look in
+        """
         self.lines = input_lines
         self.versions: Dict[str, List[str]] = {}
 
@@ -17,6 +24,11 @@ class VersionsParser:
         self.patterns["des"] = re.compile('(?:T|3|[Tt]riple)[ -]?DES|DES3')
 
     def lines_findall(self, pattern: Pattern[str]) -> List[str]:
+        """
+        Goes through all lines and finds all matches of the pattern
+        :param pattern: re.Pattern to look for in the lines
+        :return: a list of the matches
+        """
         res: Set[str] = set()
 
         for line in self.lines:
@@ -26,6 +38,12 @@ class VersionsParser:
         return list(res)
 
     def get_versions(self) -> Dict[str, List[str]]:
+        """
+        Returns a dict with keys eal, global_platform, java_card, sha, rsa, ecc, des, where the values are lists
+        of detected versions of the specific component (some keys may be skipped, if no version was detected)
+
+        :return: the dict with the versions
+        """
         for key in self.patterns.keys():
             res = self.lines_findall(self.patterns[key])
             if res:
