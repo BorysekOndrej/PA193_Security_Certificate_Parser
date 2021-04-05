@@ -62,10 +62,10 @@ class TitleParser:
         a = TitleParser.basic_transform("\n".join(self.input_lines[:self.max_first_x_lines]))
         return self._correct_title in a
 
-    def extract_from_template1(self) -> Tuple[str, bool]:
+
+
+    def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str) -> Tuple[str, bool]:
         b = TitleParser.cannonize_string("\n".join(self.input_lines))
-        magic_phrase_start = "This Certification Report states the outcome of the Common Criteria security evaluation of the"
-        magic_phrase_end = ". The developer"
 
         if magic_phrase_start not in b:
             return "", False
@@ -79,6 +79,10 @@ class TitleParser:
         # print(b[title_start:title_end])
         return b[title_start:title_end], True
 
+    def extract_from_template1(self) -> Tuple[str, bool]:
+        magic_phrase_start = "This Certification Report states the outcome of the Common Criteria security evaluation of the"
+        magic_phrase_end = ". The developer"
+        return self.extract_from_template(magic_phrase_start, magic_phrase_end)
     def parse(self, input_lines: List[str]) -> str:
         self.input_lines = input_lines
 
