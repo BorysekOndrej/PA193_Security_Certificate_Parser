@@ -41,6 +41,7 @@ class TitleParser:
     @staticmethod
     def basic_transform(a: str) -> str:
         a = TitleParser.cannonize_string(a)
+        to_remove = ["Evaluation documentation", "Final Public", "PUBLIC", "Security Target Lite", "Evaluation document"]
 
         for x in to_remove:
             pattern = re.compile(x, re.IGNORECASE)
@@ -48,6 +49,9 @@ class TitleParser:
 
         while "  " in a:
             a = a.replace("  ", " ")
+
+        a = a.split("Rev. ")[0]
+
         return a
 
     def __fallback(self) -> str:
