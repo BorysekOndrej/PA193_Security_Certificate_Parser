@@ -23,12 +23,16 @@ def score_all_json_files() -> dict:
 
             for check in checks:
                 test_name = check.__name__
-                cur_result = check(actual, expected)
-
-                results[base_filename][test_name] = cur_result
-                results[base_filename]["sum"] += cur_result
+                results[base_filename][test_name] = 0
+                try:
+                    cur_result = check(actual, expected)
+                    results[base_filename][test_name] = cur_result
+                    results[base_filename]["sum"] += cur_result
+                except Exception as e:
+                    print(f'Exception on input {input_filename} and test {test_name}: {e}')
+                    pass
         except Exception as e:
-            # print(f'Exception on input {input_filename}: {e}')
+            print(f'Exception on input {input_filename}: {e}')
             pass
     
     return results
