@@ -2,6 +2,7 @@ from typing import List, Dict
 import json
 import utils
 import test_our_implementation
+from VersionsParser import VersionsParser
 from config import OUTPUT_FOLDER
 
 class ParsingResult:
@@ -33,11 +34,14 @@ class ParseDocument():
         self.result = ParsingResult()
         self.complete_parse()
 
+        self.versions_parser = VersionsParser(self.lines)
+
     def complete_parse(self):
         # todo: :)
         pass
     
     def get_results(self) -> ParsingResult:
+        self.result.versions = self.versions_parser.get_versions()
         return self.result
 
 
