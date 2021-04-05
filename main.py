@@ -2,6 +2,7 @@ from typing import List, Dict
 import json
 import utils
 import test_our_implementation
+from BibliographyParser import BibliographyParser
 from config import OUTPUT_FOLDER
 
 class ParsingResult:
@@ -31,12 +32,12 @@ class ParseDocument():
     def __init__(self, input_lines: List[str]):
         self.lines = input_lines
         self.result = ParsingResult()
+        self.bibliography_parser = BibliographyParser()
         self.complete_parse()
 
     def complete_parse(self):
-        # todo: :)
-        pass
-    
+        self.result.bibliography = self.bibliography_parser.parse(self.lines)      
+
     def get_results(self) -> ParsingResult:
         return self.result
 
