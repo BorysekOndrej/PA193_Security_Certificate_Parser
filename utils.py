@@ -40,6 +40,11 @@ def load_file(input_filename: str) -> List[str]:
         return f.readlines()
 
 
+def load_file_json(input_filename: str) -> dict:
+    with open(input_filename, "r", encoding="utf8") as f:
+        return json.load(f)
+
+
 def main():
     example_of_names()
     pass
