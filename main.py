@@ -32,9 +32,9 @@ class ParseDocument():
     def __init__(self, input_lines: List[str]):
         self.lines = input_lines
         self.result = ParsingResult()
-        self.complete_parse()
-
         self.versions_parser = VersionsParser(self.lines)
+
+        self.complete_parse()
 
     def complete_parse(self):
         self.versions_parser.complete_parse()
