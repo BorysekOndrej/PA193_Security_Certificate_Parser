@@ -37,12 +37,12 @@ class ParseDocument():
         self.versions_parser = VersionsParser(self.lines)
 
     def complete_parse(self):
-        # todo: :)
+        self.result.versions = self.versions_parser.get_versions()
         pass
     
     def get_results(self) -> ParsingResult:
-        self.result.versions = self.versions_parser.get_versions()
         return self.result
+
 
 
 def main():
