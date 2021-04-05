@@ -14,8 +14,8 @@ def score_all_json_files() -> dict:
             base_filename = basename(input_filename)
             results[base_filename] = {}
 
-            actual = official_tester.load_file(utils.input_filename_to_our_output_filename(input_filename))
-            expected = official_tester.load_file(utils.input_filename_to_expected_output_filename(input_filename))
+            actual = utils.load_file_json(utils.input_filename_to_our_output_filename(input_filename))
+            expected = utils.load_file_json(utils.input_filename_to_expected_output_filename(input_filename))
 
             checks = (official_tester.check_title, official_tester.check_versions, official_tester.check_toc, official_tester.check_revisions, official_tester.check_bibliography)
             
