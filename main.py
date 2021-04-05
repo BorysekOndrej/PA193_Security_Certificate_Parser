@@ -37,6 +37,7 @@ class ParseDocument():
         self.versions_parser = VersionsParser(self.lines)
 
     def complete_parse(self):
+        self.versions_parser.complete_parse()
         self.result.versions = self.versions_parser.get_versions()
         pass
     

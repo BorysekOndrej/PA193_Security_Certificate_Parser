@@ -37,16 +37,23 @@ class VersionsParser:
 
         return list(res)
 
-    def get_versions(self) -> Dict[str, List[str]]:
+    def complete_parse(self) -> None:
         """
-        Returns a dict with keys eal, global_platform, java_card, sha, rsa, ecc, des, where the values are lists
-        of detected versions of the specific component (some keys may be skipped, if no version was detected)
+        Parse the versions, which can then be retrieved by get_versions
+        """
+        self.versions = {}
 
-        :return: the dict with the versions
-        """
         for key in self.patterns.keys():
             res = self.lines_findall(self.patterns[key])
             if res:
                 self.versions[key] = res
 
+    def get_versions(self) -> Dict[str, List[str]]:
+        """
+        Returns a dict with keys eal, global_platform, java_card, sha, rsa, ecc, des, where the values are lists
+        of detected versions of the specific component (some keys may be skipped, if no version was detected).
+        complete_parse needs to be called previously
+
+        :return: the dict with the versions
+        """
         return self.versions
