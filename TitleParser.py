@@ -30,11 +30,17 @@ class TitleParser:
         return " ".join(self.input_lines[:n])
 
     @staticmethod
-    def basic_transform(a: str) -> str:
-        a = a.replace("-\n", "").\
+    def cannonize_string(a: str) -> str:
+        a = a.replace("-\n", ""). \
             replace("\n", " ")
 
-        to_remove = ["Evaluation documentation", "Final Public", "PUBLIC"]
+        while "  " in a:
+            a = a.replace("  ", " ")
+        return a
+
+    @staticmethod
+    def basic_transform(a: str) -> str:
+        a = TitleParser.cannonize_string(a)
 
         for x in to_remove:
             pattern = re.compile(x, re.IGNORECASE)
