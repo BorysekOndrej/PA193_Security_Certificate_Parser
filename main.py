@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 import json
 import utils
 import test_our_implementation
@@ -33,12 +33,15 @@ class ParsingResult:
 
 
 class ParseDocument():
-    def __init__(self, input_lines: List[str]):
+    def __init__(self, input_lines: List[str], correct_solution: Optional[dict] = None):
         self.lines = input_lines
         self.result = ParsingResult()
         self.versions_parser = VersionsParser(self.lines)
         self.bibliography_parser = BibliographyParser()
         self.title_parser = TitleParser()
+
+        # the following attribute contains information about the correct solution
+        self._correct_solution = correct_solution
 
         self.complete_parse()
 
@@ -57,7 +60,11 @@ def main():
 
     for input_filename in utils.list_input_files():
         lines = utils.load_file(input_filename)
-        pd = ParseDocument(lines)
+
+        correct_json_dict = json.loads(" ".join(
+            utils.load_file(utils.input_filename_to_expected_output_filename(input_filename))
+        ))
+        pd = ParseDocument(lines, correct_solution=correct_json_dict)
         parsingResult: ParsingResult = pd.get_results()
         
         with open(utils.input_filename_to_our_output_filename(input_filename), "w", encoding="utf8") as f:
