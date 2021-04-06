@@ -31,5 +31,6 @@ class PropertyParserInterface:
 
     def get_result(self):
         if not self.is_parsed:
-            raise RuntimeWarning("Trying to acquire results for parser that has not parsed the content")
+            # print("Trying to acquire results for parser that has not parsed the content. Running parse now.")
+            self.parse()
         return self.result
