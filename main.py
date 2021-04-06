@@ -1,5 +1,8 @@
 from typing import List, Dict, Optional, Tuple
 import json
+from loguru import logger
+import sys
+
 import utils
 
 import test_our_implementation
@@ -10,7 +13,7 @@ from parsers.TitleParser import TitleParser
 from parsers.TableOfContentsParser import TableOfContentsParser
 from parsers.RevisionsParser import RevisionsParser
 
-from config import OUTPUT_FOLDER, INJECT_CORRECT_SOLUTION
+from config import OUTPUT_FOLDER, INJECT_CORRECT_SOLUTION, LOG_LEVEL
 
 
 class ParsingResult:
@@ -91,4 +94,6 @@ def main():
 
 
 if __name__ == "__main__":
+    logger.remove()
+    logger.add(sys.stderr, level=LOG_LEVEL)
     main()

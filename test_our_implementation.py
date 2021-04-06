@@ -4,6 +4,7 @@ import math
 from os.path import basename
 from config import INPUT_FOLDER, OUTPUT_FOLDER
 from pprint import pprint
+from loguru import logger
 
 
 def score_all_json_files() -> dict:
@@ -26,13 +27,15 @@ def score_all_json_files() -> dict:
                 results[base_filename][test_name] = 0
                 try:
                     cur_result = check(actual, expected)
+                    if test_name == "check_title" and cur_result < 10:
+                        logger.debug(f'{cur_result}\n{expected["title"]}\n{actual["title"]}\n')
                     results[base_filename][test_name] = cur_result
                     results[base_filename]["sum"] += cur_result
                 except Exception as e:
-                    print(f'Exception on input {input_filename} and test {test_name}: {e}')
+                    logger.info(f'Exception on input {input_filename} and test {test_name}: {e}')
                     pass
         except Exception as e:
-            print(f'Exception on input {input_filename}: {e}')
+            logger.info(f'Exception on input {input_filename}: {e}')
             pass
     
     return results
