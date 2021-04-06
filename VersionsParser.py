@@ -1,18 +1,20 @@
 import re
 from typing import List, Dict, Pattern, Set
+from PropertyParserInterface import PropertyParserInterface
 
 
-class VersionsParser:
+class VersionsParser(PropertyParserInterface):
     """
     A class for parsing versions of algorithms/components.
     """
-    def __init__(self, input_lines: List[str]):
+
+    def __init__(self, lines: List[str]):
         """
-        Initializes the parser to detect versions of specific components from input_lines
-        :param input_lines: the lines to look in
+        Initializes the parser to detect versions of specific components from lines
+        :param lines: the lines to look in
         """
-        self.lines = input_lines
-        self.versions: Dict[str, List[str]] = {}
+        super().__init__(lines)
+        self.result: Dict[str, List[str]] = {}
 
         self.patterns: Dict[str, Pattern[str]] = {}
         self.patterns["eal"] = re.compile('(?:eal|EAL) ?[0-9]\\+?')
@@ -37,18 +39,18 @@ class VersionsParser:
 
         return list(res)
 
-    def complete_parse(self) -> None:
+    def parse(self) -> None:
         """
         Parse the versions, which can then be retrieved by get_versions
         """
-        self.versions = {}
+        self.result = {}
 
         for key in self.patterns.keys():
             res = self.lines_findall(self.patterns[key])
             if res:
-                self.versions[key] = res
+                self.result[key] = res
 
-    def get_versions(self) -> Dict[str, List[str]]:
+    def get_result(self) -> Dict[str, List[str]]:
         """
         Returns a dict with keys eal, global_platform, java_card, sha, rsa, ecc, des, where the values are lists
         of detected versions of the specific component (some keys may be skipped, if no version was detected).
@@ -56,4 +58,4 @@ class VersionsParser:
 
         :return: the dict with the versions
         """
-        return self.versions
+        return super().get_result()
