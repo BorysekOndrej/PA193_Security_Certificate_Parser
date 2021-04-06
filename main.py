@@ -36,23 +36,22 @@ class ParseDocument():
     def __init__(self, input_lines: List[str], correct_solution: Optional[dict] = None):
         self.lines = input_lines
         self.result = ParsingResult()
-        self.versions_parser = VersionsParser(self.lines)
-        self.bibliography_parser = BibliographyParser()
-        self.title_parser = TitleParser(self.lines)
 
-        # the following attribute contains information about the correct solution
+        # the following attribute might contain information about the correct solution
         self._correct_solution = correct_solution
 
         self.complete_parse()
 
     def complete_parse(self):
-        self.versions_parser.complete_parse()
-        self.result.versions = self.versions_parser.get_versions()
+        versions_parser = VersionsParser(self.lines)
+        bibliography_parser = BibliographyParser(self.lines)
+        title_parser = TitleParser(self.lines)
 
         # self.title_parser.inject_correct_solution(self._correct_solution["title"])
-        self.result.title = self.title_parser.parse()
 
-        self.result.bibliography = self.bibliography_parser.parse(self.lines)
+        self.result.versions = versions_parser.get_result()
+        self.result.title = title_parser.get_result()
+        self.result.bibliography = bibliography_parser.get_result()
 
     def get_results(self) -> ParsingResult:
         return self.result
@@ -68,10 +67,10 @@ def main():
             utils.load_file(utils.input_filename_to_expected_output_filename(input_filename))
         ))
         pd = ParseDocument(lines, correct_solution=correct_json_dict)
-        parsingResult: ParsingResult = pd.get_results()
+        parsing_result: ParsingResult = pd.get_results()
         
         with open(utils.input_filename_to_our_output_filename(input_filename), "w", encoding="utf8") as f:
-            f.write(parsingResult.make_json())
+            f.write(parsing_result.make_json())
     
     test_our_implementation.main()
 
