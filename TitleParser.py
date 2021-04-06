@@ -1,17 +1,15 @@
 import re
 from typing import List, Dict, Tuple
 
-import PropertyParserInterface
+from PropertyParserInterface import PropertyParserInterface
 
 
-class TitleParser(PropertyParserInterface.PropertyParserInterface):
+class TitleParser(PropertyParserInterface):
     """ Title parser"""
     def __init__(self, lines: List[str]):
         super().__init__(lines)
         self.max_first_x_lines = 40
         self.fallback_take_first_n_lines = 5
-
-        self._correct_title = None
 
     def __take_first_n_lines(self, n: int) -> str:
         return " ".join(self.lines[:n])
@@ -38,7 +36,7 @@ class TitleParser(PropertyParserInterface.PropertyParserInterface):
 
     def check_correct_solution_is_somewhere_in_there(self):
         a = TitleParser.basic_transform("\n".join(self.lines[:self.max_first_x_lines]))
-        return self._correct_title in a
+        return self._correct_solution in a
 
     def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str) -> Tuple[str, bool]:
         b = self.canon_text
@@ -68,7 +66,7 @@ class TitleParser(PropertyParserInterface.PropertyParserInterface):
                 return title, True
         return "", False
 
-    def parse(self, input_lines: List[str]) -> str:
+    def parse(self) -> str:
         # print(self.check_correct_solution_is_somewhere_in_there())
 
         title, found = self.try_templates()
@@ -77,9 +75,7 @@ class TitleParser(PropertyParserInterface.PropertyParserInterface):
 
         answer = TitleParser.basic_transform(self.__fallback())
         # print(answer)
-        # print(self._correct_title)
+        # print(self._correct_solution)
         # print()
         return answer.strip()
 
-    def add_correct_title(self, correct_title: str):
-        self._correct_title = correct_title

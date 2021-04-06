@@ -8,6 +8,10 @@ class PropertyParserInterface:
         self.is_parsed: bool = False
         self.result = None
 
+        # This field might contain correct solution loaded from the dataset. It's here for sanity checks and exploratory
+        # analysis, not for help with parsing.
+        self._correct_solution = None
+
     @staticmethod
     def canonize_string(a: str) -> str:
         a = a.replace("-\n", ""). \
@@ -18,6 +22,9 @@ class PropertyParserInterface:
 
         return a
 
+    def inject_correct_solution(self, correct_solution):
+        self._correct_solution = correct_solution
+
     def parse(self):
         # self.is_parsed = True
         raise NotImplementedError()
@@ -25,4 +32,4 @@ class PropertyParserInterface:
     def get_result(self):
         if not self.is_parsed:
             raise RuntimeWarning("Trying to acquire results for parser that has not parsed the content")
-
+        return self.result
