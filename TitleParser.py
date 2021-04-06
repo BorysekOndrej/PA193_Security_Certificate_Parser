@@ -82,7 +82,7 @@ class TitleParser:
             ("This Certification Report states the outcome of the Common Criteria security evaluation of the",
              ". The developer"),
             ("The Target of Evaluation (TOE) is called: ",
-             ". The following table"),
+             " The following table"),
         ]
         for x in templates:
             title, found = self.extract_from_template(x[0], x[1])
@@ -98,13 +98,13 @@ class TitleParser:
 
         title, found = self.try_templates()
         if found:
-            return title
+            return title.strip()
 
         answer = TitleParser.basic_transform(self.__fallback())
         # print(answer)
         # print(self._correct_title)
         # print()
-        return answer
+        return answer.strip()
 
     def add_correct_title(self, correct_title: str):
         self._correct_title = correct_title
