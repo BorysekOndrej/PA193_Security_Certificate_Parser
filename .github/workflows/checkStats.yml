@@ -32,7 +32,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Test with pytest
-      run: python3 main.py > test_stats_${{matrix.python-version}}.txt
+      run: python3 ParseDocument.py > test_stats_${{matrix.python-version}}.txt
 
     - name: Upload Unit Test Results
       if: always()

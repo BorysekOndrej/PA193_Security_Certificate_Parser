@@ -3,7 +3,7 @@ import sys
 import argparse
 
 import config
-from main import main
+from ParseDocument import main
 
 
 def process_cli_arguments():
