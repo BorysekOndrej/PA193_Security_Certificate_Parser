@@ -35,13 +35,13 @@ class BibliographyParser(PropertyParserInterface):
         """ Remove all redundant whitespaces and newline characters. """
         return re.sub(self.postprocessPattern, ' ', string).rstrip()
 
-    def parse(self):
+    def parse(self) -> Dict[str, str]:
         """ Parse input text and find bibliography. """
-        result: Dict[str, str] = {}
+        self.result: Dict[str, str] = {}
         text = self.preprocess(self.lines)
         bibliography = re.findall(self.globalPattern, text)
         for b in bibliography:
             # Here we take the third element of the tuple defined by the regex
             processed = self.postprocess(b[2])
-            result[b[0]] = processed
-        self.result = result
+            self.result[b[0]] = processed
+        return self.result

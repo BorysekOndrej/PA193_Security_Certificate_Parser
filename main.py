@@ -49,9 +49,9 @@ class ParseDocument():
 
         # self.title_parser.inject_correct_solution(self._correct_solution["title"])
 
-        self.result.versions = versions_parser.get_result()
-        self.result.title = title_parser.get_result()
-        self.result.bibliography = bibliography_parser.get_result()
+        self.result.versions = versions_parser.parse()
+        self.result.title = title_parser.parse()
+        self.result.bibliography = bibliography_parser.parse()
 
     def get_results(self) -> ParsingResult:
         return self.result

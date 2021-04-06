@@ -39,9 +39,14 @@ class VersionsParser(PropertyParserInterface):
 
         return list(res)
 
-    def parse(self) -> None:
+    def parse(self) -> Dict[str, List[str]]:
         """
         Parse the versions, which can then be retrieved by get_versions
+        Returns a dict with keys eal, global_platform, java_card, sha, rsa, ecc, des, where the values are lists
+        of detected versions of the specific component (some keys may be skipped, if no version was detected).
+        complete_parse needs to be called previously
+
+        :return: the dict with the versions
         """
         self.result = {}
 
@@ -49,13 +54,4 @@ class VersionsParser(PropertyParserInterface):
             res = self.lines_findall(self.patterns[key])
             if res:
                 self.result[key] = res
-
-    def get_result(self) -> Dict[str, List[str]]:
-        """
-        Returns a dict with keys eal, global_platform, java_card, sha, rsa, ecc, des, where the values are lists
-        of detected versions of the specific component (some keys may be skipped, if no version was detected).
-        complete_parse needs to be called previously
-
-        :return: the dict with the versions
-        """
-        return super().get_result()
+        return self.result
