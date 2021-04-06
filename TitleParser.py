@@ -1,33 +1,25 @@
 import re
 from typing import List, Dict, Tuple
 
+import PropertyParserInterface
 
-class TitleParser:
+
+class TitleParser(PropertyParserInterface.PropertyParserInterface):
     """ Title parser"""
-    def __init__(self):
+    def __init__(self, lines: List[str]):
+        super().__init__(lines)
         self.max_first_x_lines = 40
-        self.input_lines = []
-        self.cannon_string = ""
         self.fallback_take_first_n_lines = 5
 
         self._correct_title = None
-        pass
 
     def __take_first_n_lines(self, n: int) -> str:
-        return " ".join(self.input_lines[:n])
+        return " ".join(self.lines[:n])
 
-    @staticmethod
-    def cannonize_string(a: str) -> str:
-        a = a.replace("-\n", ""). \
-            replace("\n", " ")
-
-        while "  " in a:
-            a = a.replace("  ", " ")
-        return a
 
     @staticmethod
     def basic_transform(a: str) -> str:
-        a = TitleParser.cannonize_string(a)
+        a = TitleParser.canonize_string(a)
         to_remove = ["Evaluation documentation", "Final Public", "PUBLIC", "Security Target Lite", "Evaluation document"]
 
         for x in to_remove:
@@ -45,11 +37,11 @@ class TitleParser:
         return self.__take_first_n_lines(self.fallback_take_first_n_lines)
 
     def check_correct_solution_is_somewhere_in_there(self):
-        a = TitleParser.basic_transform("\n".join(self.input_lines[:self.max_first_x_lines]))
+        a = TitleParser.basic_transform("\n".join(self.lines[:self.max_first_x_lines]))
         return self._correct_title in a
 
     def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str) -> Tuple[str, bool]:
-        b = self.cannon_string
+        b = self.canon_text
 
         if magic_phrase_start not in b:
             return "", False
@@ -77,9 +69,6 @@ class TitleParser:
         return "", False
 
     def parse(self, input_lines: List[str]) -> str:
-        self.input_lines = input_lines
-        self.cannon_string = self.cannonize_string("\n".join(self.input_lines))
-
         # print(self.check_correct_solution_is_somewhere_in_there())
 
         title, found = self.try_templates()

@@ -38,7 +38,7 @@ class ParseDocument():
         self.result = ParsingResult()
         self.versions_parser = VersionsParser(self.lines)
         self.bibliography_parser = BibliographyParser()
-        self.title_parser = TitleParser()
+        self.title_parser = TitleParser(self.lines)
 
         # the following attribute contains information about the correct solution
         self._correct_solution = correct_solution
