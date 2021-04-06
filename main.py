@@ -4,11 +4,11 @@ import utils
 
 import test_our_implementation
 
-from VersionsParser import VersionsParser
-from BibliographyParser import BibliographyParser
-from TitleParser import TitleParser
-from TableOfContentsParser import TableOfContentsParser
-from RevisionsParser import RevisionsParser
+from parsers.VersionsParser import VersionsParser
+from parsers.BibliographyParser import BibliographyParser
+from parsers.TitleParser import TitleParser
+from parsers.TableOfContentsParser import TableOfContentsParser
+from parsers.RevisionsParser import RevisionsParser
 
 from config import OUTPUT_FOLDER, INJECT_CORRECT_SOLUTION
 
