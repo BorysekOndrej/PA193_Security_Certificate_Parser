@@ -7,6 +7,7 @@ class TitleParser:
     def __init__(self):
         self.max_first_x_lines = 40
         self.input_lines = []
+        self.cannon_string = ""
         self.fallback_take_first_n_lines = 5
 
         self._correct_title = None
@@ -62,7 +63,7 @@ class TitleParser:
         return self._correct_title in a
 
     def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str) -> Tuple[str, bool]:
-        b = TitleParser.cannonize_string("\n".join(self.input_lines))
+        b = self.cannon_string
 
         if magic_phrase_start not in b:
             return "", False
@@ -91,6 +92,7 @@ class TitleParser:
 
     def parse(self, input_lines: List[str]) -> str:
         self.input_lines = input_lines
+        self.cannon_string = self.cannonize_string("\n".join(self.input_lines))
 
         # print(self.check_correct_solution_is_somewhere_in_there())
 
