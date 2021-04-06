@@ -1,19 +1,23 @@
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 import json
 import utils
+
 import test_our_implementation
+
 from VersionsParser import VersionsParser
 from BibliographyParser import BibliographyParser
 from TitleParser import TitleParser
+from TableOfContentsParser import TableOfContentsParser
+from RevisionsParser import RevisionsParser
 
-from config import OUTPUT_FOLDER
+from config import OUTPUT_FOLDER, INJECT_CORRECT_SOLUTION
 
 
 class ParsingResult:
     def __init__(self):
         self.title: str = ""
         self.versions: Dict[str, List[str]] = {}
-        self.table_of_contents: List[List[str, str, int]] = []
+        self.table_of_contents: List[Tuple[str, str, int]] = []
         self.revisions: List[dict] = []
         self.bibliography: Dict[str, str] = {}
         self.other: Dict[str, str] = {}
@@ -32,28 +36,39 @@ class ParsingResult:
         return utils.convert_dict_to_json_string(self.make_dict())
 
 
-class ParseDocument():
+class ParseDocument:
     def __init__(self, input_lines: List[str], correct_solution: Optional[dict] = None):
         self.lines = input_lines
         self.result = ParsingResult()
+        self.complete_parse_started = False
+
+        self.parsers = {
+            'title': TitleParser,
+            'versions': VersionsParser,
+            'table_of_contents': TableOfContentsParser,
+            'revisions': RevisionsParser,
+            'bibliography': BibliographyParser,
+        }
 
         # the following attribute might contain information about the correct solution
         self._correct_solution = correct_solution
 
-        self.complete_parse()
-
     def complete_parse(self):
-        versions_parser = VersionsParser(self.lines)
-        bibliography_parser = BibliographyParser(self.lines)
-        title_parser = TitleParser(self.lines)
+        self.complete_parse_started = True
+        for field_name in self.parsers:
+            parser_instance = self.parsers[field_name](self.lines)
 
-        # self.title_parser.inject_correct_solution(self._correct_solution["title"])
+            if INJECT_CORRECT_SOLUTION:
+                try:
+                    parser_instance.inject_correct_solution(getattr(self._correct_solution, field_name))
+                except:
+                    pass
 
-        self.result.versions = versions_parser.parse()
-        self.result.title = title_parser.parse()
-        self.result.bibliography = bibliography_parser.parse()
+            setattr(self.result, field_name, parser_instance.parse())
 
     def get_results(self) -> ParsingResult:
+        if not self.complete_parse_started:
+            self.complete_parse()
         return self.result
 
 
