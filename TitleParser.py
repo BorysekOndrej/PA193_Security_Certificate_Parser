@@ -66,16 +66,17 @@ class TitleParser(PropertyParserInterface):
                 return title, True
         return "", False
 
-    def parse(self) -> str:
+    def parse(self):
         # print(self.check_correct_solution_is_somewhere_in_there())
 
         title, found = self.try_templates()
         if found:
-            return title.strip()
+            self.result = title.strip()
+            return
 
         answer = TitleParser.basic_transform(self.__fallback())
         # print(answer)
         # print(self._correct_solution)
         # print()
-        return answer.strip()
+        self.result = answer.strip()
 
