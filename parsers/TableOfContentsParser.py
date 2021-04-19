@@ -144,14 +144,15 @@ class TableOfContentsParser(PropertyParserInterface):
 
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
-        toc_lines = self.__filter_by_magic_sep(self.lines, sep)
+        toc_lines_magic_sep = self.__filter_by_magic_sep(self.lines, sep)
+        toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(self.lines, sep)
+
+        toc_lines = toc_lines_magic_sep
+        if len(toc_lines_magic_sep) < len(toc_lines_num_wildcard_num):
+            toc_lines = toc_lines_num_wildcard_num
 
         if len(toc_lines) == 0:
-            logger.warning(f"Zero ToC lines detected using \"{sep}\" sep")
-            toc_lines = self.filter_lines_by_num_wildcard_num(self.lines, sep)
-
-        if len(toc_lines) == 0:
-            logger.warning(f"Zero ToC lines detected using ^NUM*NUM$ heuristic")
+            logger.warning(f"Zero ToC lines find after trying all line filter approaches")
             return []
 
         if self.__check_for_two_columns(toc_lines):
