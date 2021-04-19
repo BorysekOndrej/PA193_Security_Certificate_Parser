@@ -128,8 +128,19 @@ class TableOfContentsParser(PropertyParserInterface):
         return answer2
 
     @staticmethod
-    def parser2(lines: List[str], sep: str) -> List[Tuple[str, str, int]]:
-        return []
+    def filter_lines_by_num_wildcard_num(lines: List[str], sep: str) -> List[str]:
+        new_lines = []
+        for line in lines:
+            new_line = line.strip()
+            if len(new_line) < 2:
+                continue
+            if not (new_line[0].isnumeric() and new_line[-1].isnumeric()):
+                continue
+            new_line = new_line.replace(". . ", sep).replace(". .", sep)
+            # print(new_line)
+            new_lines.append(new_line)
+
+        return new_lines
 
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
@@ -137,7 +148,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
         if len(toc_lines) == 0:
             logger.warning(f"Zero ToC lines detected using \"{sep}\" sep")
-            toc_lines = self.parser2(self.lines, sep)
+            toc_lines = self.filter_lines_by_num_wildcard_num(self.lines, sep)
 
         if len(toc_lines) == 0:
             logger.warning(f"Zero ToC lines detected using ^NUM*NUM$ heuristic")
