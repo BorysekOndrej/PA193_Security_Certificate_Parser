@@ -88,14 +88,16 @@ class TableOfContentsParser(PropertyParserInterface):
                 index_part, name_part = split1[0], split1[0]
 
             page_number_string = c[1].split(" ", 1)[0]
-            try:
 
-                res_attempt_to_split_name2 = TableOfContentsParser.__remove_empty_strings_from_arr(index_part.split(". ", 1))
-                if len(res_attempt_to_split_name2) == 2:
-                    index_part, name_part = res_attempt_to_split_name2
+            res_attempt_to_split_name2 = TableOfContentsParser.__remove_empty_strings_from_arr(
+                index_part.split(". ", 1))
+            if len(res_attempt_to_split_name2) == 2:
+                index_part, name_part = res_attempt_to_split_name2
+
+            try:
                 answer2.append((index_part, name_part, int(page_number_string)))
             except ValueError as e:
-                print(c[1])
+                logger.warning(c[1])
                 pass
 
         return answer2
@@ -167,6 +169,8 @@ class TableOfContentsParser(PropertyParserInterface):
         if self.__check_for_two_columns(toc_lines):
             # logger.warning("This report has probably two columns")
             toc_lines = self.__decolumn_lines(toc_lines)
+
+        logger.debug(toc_lines)
 
         return toc_lines
 
