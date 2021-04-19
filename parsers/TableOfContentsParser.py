@@ -8,7 +8,7 @@ from PropertyParserInterface import PropertyParserInterface
 
 class TableOfContentsParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
-        self.page_num_sep = "......."
+        self.toc_page_num_sep = "......."
         super().__init__(lines)
 
     @staticmethod
@@ -171,8 +171,8 @@ class TableOfContentsParser(PropertyParserInterface):
 
 
     def preprocess(self, lines: List[str]) -> List[str]:
-        toc_lines_magic_sep = self.__filter_by_magic_sep(lines, self.page_num_sep)
-        toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(lines, self.page_num_sep)
+        toc_lines_magic_sep = self.__filter_by_magic_sep(lines, self.toc_page_num_sep)
+        toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
 
         toc_lines = toc_lines_magic_sep
         if len(toc_lines_magic_sep) < len(toc_lines_num_wildcard_num):
@@ -189,20 +189,18 @@ class TableOfContentsParser(PropertyParserInterface):
         return toc_lines
 
     def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
-        parser_result = self.parser1(toc_lines, self.page_num_sep)
+        parser_result = self.parser1(toc_lines, self.toc_page_num_sep)
         if len(parser_result) == 0:
             parser_result = self.parser2(toc_lines)
 
         if len(parser_result) == 0:
-            logger.info(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
+            logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
             # logger.debug(toc_lines)
 
         return parser_result
 
     def post_filter(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
-
         filtered_results = self.filter_results_by_page_numbers(possible_results)
-
         return filtered_results
 
     def parse(self) -> List[Tuple[str, str, int]]:
