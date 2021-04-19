@@ -45,7 +45,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
     @staticmethod
     def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
-        dots_sep = "....."
+        dots_sep = "....."  # todo: This has to match the internal attribute of the class
         space_sep = "    "
 
         dots1 = line.find(dots_sep)
@@ -157,11 +157,14 @@ class TableOfContentsParser(PropertyParserInterface):
                 logger.debug("Split failed")
         return answer
 
+    def get_page_count(self) -> int:
+        page_break_char = ""
+        return sum(map(lambda x: page_break_char in x, self.lines))
+
     def filter_results_by_page_numbers(self, a: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
         page_min = 1
-        page_break_char = ""
+        page_max = self.get_page_count() + 1
 
-        page_max = sum(map(lambda x: page_break_char in x, self.lines)) + 1
         # loguru.debug(page_max)
 
         try:
@@ -183,9 +186,8 @@ class TableOfContentsParser(PropertyParserInterface):
 
         # The following line does not improve the results, but does improve the readability of the intermediate results.
         for i in range(30):
-            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + "..", self.toc_page_num_sep), toc_lines))
-
-        logger.debug(toc_lines)
+            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".....", self.toc_page_num_sep), toc_lines))
+            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".", self.toc_page_num_sep), toc_lines))
 
         if len(toc_lines) == 0:
             logger.warning(f"Zero ToC lines find after trying all line filter approaches")
