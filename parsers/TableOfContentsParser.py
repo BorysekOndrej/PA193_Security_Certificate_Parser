@@ -8,6 +8,7 @@ from PropertyParserInterface import PropertyParserInterface
 
 class TableOfContentsParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
+        self.page_num_sep = "......."
         super().__init__(lines)
 
     @staticmethod
@@ -168,10 +169,10 @@ class TableOfContentsParser(PropertyParserInterface):
             logger.warning("Filter error - most likely non int in page number")
         return a
 
-    def parse(self) -> List[Tuple[str, str, int]]:
-        sep = "......."
-        toc_lines_magic_sep = self.__filter_by_magic_sep(self.lines, sep)
-        toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(self.lines, sep)
+
+    def preprocess(self, lines: List[str]) -> List[str]:
+        toc_lines_magic_sep = self.__filter_by_magic_sep(lines, self.page_num_sep)
+        toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(lines, self.page_num_sep)
 
         toc_lines = toc_lines_magic_sep
         if len(toc_lines_magic_sep) < len(toc_lines_num_wildcard_num):
@@ -185,7 +186,10 @@ class TableOfContentsParser(PropertyParserInterface):
             # logger.warning("This report has probably two columns")
             toc_lines = self.__decolumn_lines(toc_lines)
 
-        parser_result = self.parser1(toc_lines, sep)
+        return toc_lines
+
+    def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
+        parser_result = self.parser1(toc_lines, self.page_num_sep)
         if len(parser_result) == 0:
             parser_result = self.parser2(toc_lines)
 
@@ -193,6 +197,16 @@ class TableOfContentsParser(PropertyParserInterface):
             logger.info(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
             # logger.debug(toc_lines)
 
-        parser_result = self.filter_results_by_page_numbers(parser_result)
-
         return parser_result
+
+    def post_filter(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
+
+        filtered_results = self.filter_results_by_page_numbers(possible_results)
+
+        return filtered_results
+
+    def parse(self) -> List[Tuple[str, str, int]]:
+        toc_lines = self.preprocess(self.lines)
+        possible_results = self.main_parse(toc_lines)
+        filtered_results = self.post_filter(possible_results)
+        return filtered_results
