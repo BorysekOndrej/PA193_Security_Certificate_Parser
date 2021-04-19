@@ -39,7 +39,7 @@ class TableOfContentsParser(PropertyParserInterface):
             b = a.split(" ", 1)
             return int(b[0])
         except ValueError as e:
-            logger.warning(a)
+            # logger.warning(a)
             return -1
 
     @staticmethod
@@ -65,7 +65,7 @@ class TableOfContentsParser(PropertyParserInterface):
         if suspected_two_columns == 0:
             return False
 
-        logger.debug(f"{suspected_two_columns} | {len(a)} | {suspected_two_columns*100/len(a)}")
+        # logger.debug(f"{suspected_two_columns} | {len(a)} | {suspected_two_columns*100/len(a)}")
         return True
 
     @staticmethod
@@ -99,9 +99,11 @@ class TableOfContentsParser(PropertyParserInterface):
 
         if len(toc_lines) == 0:
             return []
+
         if self.__check_for_two_columns(toc_lines):
-            logger.warning("This report has probably two columns")
+            # logger.warning("This report has probably two columns")
             toc_lines = self.__decolumn_lines(toc_lines)
+
         # for x in toc_lines:
         #     print(x.strip())
 
