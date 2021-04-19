@@ -1,6 +1,7 @@
 import re
 from typing import List, Dict, Tuple
 from pprint import pprint
+from loguru import logger
 
 from PropertyParserInterface import PropertyParserInterface
 
@@ -32,6 +33,15 @@ class TableOfContentsParser(PropertyParserInterface):
             return [b[0], b[1]]
         return [a]
 
+    @staticmethod
+    def __extract_number_at_the_start(a: str) -> int:
+        try:
+            b = a.split(" ", 1)
+            return int(b[0])
+        except ValueError as e:
+            logger.warning(a)
+            return -1
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
         answer = list(filter(lambda x: sep in x, self.lines))
@@ -48,14 +58,16 @@ class TableOfContentsParser(PropertyParserInterface):
 
             if len(c) == 2:
                 index_part, name_part = self.__split_index_name(c[0])
+                page_number = self.__extract_number_at_the_start(c[1])
                 try:
                     res_attempt_to_split_name2 = self.__try_to_split_after_dot_space(index_part)
                     if len(res_attempt_to_split_name2) == 2:
                         index_part, name_part = res_attempt_to_split_name2
-                    cur_part = (index_part, name_part, int(c[1]))
+                    cur_part = (index_part, name_part, page_number)
+                    # cur_part = (index_part, name_part, int(c[1]))
                     # print(cur_part)
                 except ValueError as e:
-                    # print(c[1])
+                    print(c[1])
                     # cur_part = (c[0], c[0], c[1])
                     pass
 
