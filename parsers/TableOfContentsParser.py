@@ -27,15 +27,6 @@ class TableOfContentsParser(PropertyParserInterface):
         return [a]
 
     @staticmethod
-    def __extract_number_at_the_start(a: str) -> int:
-        try:
-            b = a.split(" ", 1)
-            return int(b[0])
-        except ValueError as e:
-            # logger.warning(a)
-            return -1
-
-    @staticmethod
     def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
         dots_sep = "....."  # todo: This has to match the internal attribute of the class
         space_sep = "    "
@@ -91,12 +82,10 @@ class TableOfContentsParser(PropertyParserInterface):
         answer2 = []
 
         for single_line in lines:
+            logger.warning(single_line)
             b = single_line.split(sep)
             c = TableOfContentsParser.__remove_empty_strings_from_arr(b)
             # logger.info(c)
-
-            if len(c):
-                c[-1] = c[-1].lstrip(".").lstrip()
 
             if len(c) != 2:
                 continue
@@ -108,11 +97,12 @@ class TableOfContentsParser(PropertyParserInterface):
                 index_part, name_part = split1[0], split1[0]
 
             page_number = TableOfContentsParser.__extract_number_at_the_start(c[1])
+            page_number_string = c[1].split(" ", 1)[0]
             try:
                 res_attempt_to_split_name2 = TableOfContentsParser.__try_to_split_after_dot_space(index_part)
                 if len(res_attempt_to_split_name2) == 2:
                     index_part, name_part = res_attempt_to_split_name2
-                answer2.append((index_part, name_part, page_number))
+                answer2.append((index_part, name_part, int(page_number_string)))
             except ValueError as e:
                 print(c[1])
                 pass
