@@ -71,21 +71,21 @@ class TableOfContentsParser(PropertyParserInterface):
             if sep not in single_line:
                 continue
             c = single_line.replace(sep, " ").rsplit(" ", 1)
-            c = list(filter(lambda x: len(x), c))
-            c = list(map(lambda x: x.strip(), c))
-
-            logger.warning(c)
+            c = list(map(lambda x: x.strip(), c))  # Remove all whitechars from components
+            c = list(filter(lambda x: len(x), c))  # Keep only components with non zero length
 
             if len(c) != 2:
                 continue
 
-            split1 = list(filter(lambda x: len(x), c[0].split("  ")))
+            identificator_and_title, page_number_string = c
+
+            logger.warning(identificator_and_title)
+
+            split1 = list(filter(lambda x: len(x), identificator_and_title.split("  ")))
             if len(split1) == 2:
                 index_part, name_part = split1[0].strip(), split1[1].strip()
             else:
                 index_part, name_part = split1[0], split1[0]
-
-            page_number_string = c[1].split(" ", 1)[0]
 
             res_attempt_to_split_name2 = index_part.split(". ", 1)
             if len(res_attempt_to_split_name2) == 2:
