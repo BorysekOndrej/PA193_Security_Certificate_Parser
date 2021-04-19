@@ -12,14 +12,6 @@ class TableOfContentsParser(PropertyParserInterface):
         super().__init__(lines)
 
     @staticmethod
-    def __split_index_name(a: str) -> Tuple[str, str]:
-        b = a.split("  ")
-        c = list(filter(lambda x: len(x), b))
-        if len(c) == 2:
-            return c[0].strip(), c[1].strip()
-        return a, a
-
-    @staticmethod
     def __remove_empty_strings_from_arr(a: List[str]) -> List[str]:
         b = list(filter(lambda x: len(x), a))
         b = list(map(lambda x: x.strip(), b))
@@ -109,7 +101,12 @@ class TableOfContentsParser(PropertyParserInterface):
             cur_part = None
 
             if len(c) == 2:
-                index_part, name_part = TableOfContentsParser.__split_index_name(c[0])
+                split1 = list(filter(lambda x: len(x), c[0].split("  ")))
+                if len(split1) == 2:
+                    index_part, name_part = split1[0].strip(), split1[1].strip()
+                else:
+                    index_part, name_part = split1[0], split1[0]
+
                 page_number = TableOfContentsParser.__extract_number_at_the_start(c[1])
                 try:
                     res_attempt_to_split_name2 = TableOfContentsParser.__try_to_split_after_dot_space(index_part)
