@@ -43,15 +43,21 @@ class TableOfContentsParser(PropertyParserInterface):
             return -1
 
     @staticmethod
-    def __check_for_two_columns(a: List[str]) -> bool:
-        suspected_two_columns = 0
+    def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
         dots_sep = ".........."
         space_sep = "    "
 
+        dots1 = line.find(dots_sep)
+        space1 = line.find(space_sep, dots1 + 2)
+        dots2 = line.find(dots_sep, space1 + 2)
+        return dots1, space1, dots2
+
+    @staticmethod
+    def __check_for_two_columns(a: List[str]) -> bool:
+        suspected_two_columns = 0
+
         for line in a:
-            dots1 = line.find(dots_sep)
-            space1 = line.find(space_sep, dots1 + 2)
-            dots2 = line.find(dots_sep, space1 + 2)
+            dots1, space1, dots2 = TableOfContentsParser.__two_column_format_align_check(line)
             if dots1 == -1 or space1 == -1 or dots2 == -1:
                 continue
             suspected_two_columns += 1
