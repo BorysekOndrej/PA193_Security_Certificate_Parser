@@ -93,25 +93,13 @@ class TableOfContentsParser(PropertyParserInterface):
 
         return new_lines
 
-    def parse(self) -> List[Tuple[str, str, int]]:
-        sep = "......."
-        toc_lines = self.__filter_by_magic_sep(self.lines, sep)
-
-        if len(toc_lines) == 0:
-            return []
-
-        if self.__check_for_two_columns(toc_lines):
-            # logger.warning("This report has probably two columns")
-            toc_lines = self.__decolumn_lines(toc_lines)
-
-        # for x in toc_lines:
-        #     print(x.strip())
-
+    @staticmethod
+    def parser1(lines: List[str], sep: str) -> List[Tuple[str, str, int]]:
         answer2 = []
 
-        for single_line in toc_lines:
+        for single_line in lines:
             b = single_line.split(sep)
-            c = self.__remove_empty_strings_from_arr(b)
+            c = TableOfContentsParser.__remove_empty_strings_from_arr(b)
 
             if len(c):
                 c[-1] = c[-1].lstrip(".").lstrip()
@@ -119,10 +107,10 @@ class TableOfContentsParser(PropertyParserInterface):
             cur_part = None
 
             if len(c) == 2:
-                index_part, name_part = self.__split_index_name(c[0])
-                page_number = self.__extract_number_at_the_start(c[1])
+                index_part, name_part = TableOfContentsParser.__split_index_name(c[0])
+                page_number = TableOfContentsParser.__extract_number_at_the_start(c[1])
                 try:
-                    res_attempt_to_split_name2 = self.__try_to_split_after_dot_space(index_part)
+                    res_attempt_to_split_name2 = TableOfContentsParser.__try_to_split_after_dot_space(index_part)
                     if len(res_attempt_to_split_name2) == 2:
                         index_part, name_part = res_attempt_to_split_name2
                     cur_part = (index_part, name_part, page_number)
@@ -138,3 +126,19 @@ class TableOfContentsParser(PropertyParserInterface):
 
         # print(answer2)
         return answer2
+
+    def parse(self) -> List[Tuple[str, str, int]]:
+        sep = "......."
+        toc_lines = self.__filter_by_magic_sep(self.lines, sep)
+
+        if len(toc_lines) == 0:
+            return []
+
+        if self.__check_for_two_columns(toc_lines):
+            # logger.warning("This report has probably two columns")
+            toc_lines = self.__decolumn_lines(toc_lines)
+
+        # for x in toc_lines:
+        #     print(x.strip())
+
+        return self.parser1(toc_lines, sep)
