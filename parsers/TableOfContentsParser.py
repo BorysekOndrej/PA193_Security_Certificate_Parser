@@ -12,12 +12,6 @@ class TableOfContentsParser(PropertyParserInterface):
         super().__init__(lines)
 
     @staticmethod
-    def __remove_empty_strings_from_arr(a: List[str]) -> List[str]:
-        b = list(filter(lambda x: len(x), a))
-        b = list(map(lambda x: x.strip(), b))
-        return b
-
-    @staticmethod
     def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
         dots_sep = "....."  # todo: This has to match the internal attribute of the class
         space_sep = "    "
@@ -73,10 +67,14 @@ class TableOfContentsParser(PropertyParserInterface):
         answer2 = []
 
         for single_line in lines:
-            logger.warning(single_line)
-            b = single_line.split(sep)
-            c = TableOfContentsParser.__remove_empty_strings_from_arr(b)
-            # logger.info(c)
+            # logger.warning(single_line)
+            if sep not in single_line:
+                continue
+            c = single_line.replace(sep, " ").rsplit(" ", 1)
+            c = list(filter(lambda x: len(x), c))
+            c = list(map(lambda x: x.strip(), c))
+
+            logger.warning(c)
 
             if len(c) != 2:
                 continue
@@ -89,8 +87,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
             page_number_string = c[1].split(" ", 1)[0]
 
-            res_attempt_to_split_name2 = TableOfContentsParser.__remove_empty_strings_from_arr(
-                index_part.split(". ", 1))
+            res_attempt_to_split_name2 = index_part.split(". ", 1)
             if len(res_attempt_to_split_name2) == 2:
                 index_part, name_part = res_attempt_to_split_name2
 
