@@ -18,15 +18,6 @@ class TableOfContentsParser(PropertyParserInterface):
         return b
 
     @staticmethod
-    def __try_to_split_after_dot_space(a: str) -> List[str]:
-        b = a.split(". ", 1)
-        b = TableOfContentsParser.__remove_empty_strings_from_arr(b)
-        if len(b) == 2:
-            # print(b)
-            return [b[0], b[1]]
-        return [a]
-
-    @staticmethod
     def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
         dots_sep = "....."  # todo: This has to match the internal attribute of the class
         space_sep = "    "
@@ -96,10 +87,10 @@ class TableOfContentsParser(PropertyParserInterface):
             else:
                 index_part, name_part = split1[0], split1[0]
 
-            page_number = TableOfContentsParser.__extract_number_at_the_start(c[1])
             page_number_string = c[1].split(" ", 1)[0]
             try:
-                res_attempt_to_split_name2 = TableOfContentsParser.__try_to_split_after_dot_space(index_part)
+
+                res_attempt_to_split_name2 = TableOfContentsParser.__remove_empty_strings_from_arr(index_part.split(". ", 1))
                 if len(res_attempt_to_split_name2) == 2:
                     index_part, name_part = res_attempt_to_split_name2
                 answer2.append((index_part, name_part, int(page_number_string)))
