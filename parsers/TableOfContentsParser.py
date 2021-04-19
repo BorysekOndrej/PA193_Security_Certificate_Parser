@@ -43,10 +43,30 @@ class TableOfContentsParser(PropertyParserInterface):
             return -1
 
     @staticmethod
+    def __check_for_two_columns(a: List[str]) -> bool:
+        suspected_two_columns = 0
+        dots_sep = ".........."
+        space_sep = "    "
+
+        for line in a:
+            dots1 = line.find(dots_sep)
+            space1 = line.find(space_sep, dots1 + 2)
+            dots2 = line.find(dots_sep, space1 + 2)
+            if dots1 == -1 or space1 == -1 or dots2 == -1:
+                continue
+            suspected_two_columns += 1
+
+        if suspected_two_columns == 0:
+            return False
+
+        logger.debug(f"{suspected_two_columns} | {len(a)} | {suspected_two_columns*100/len(a)}")
+        return True
+
+    @staticmethod
     def __filter_by_magic_sep(a: List[str], sep: str) -> List[str]:
 
         new_lines = list(filter(lambda x: sep in x, a))
-        logger.warning(f"Lines filtered to {len(new_lines)} lines")
+        # logger.warning(f"Lines filtered to {len(new_lines)} lines")
         return new_lines
 
     def parse(self) -> List[Tuple[str, str, int]]:
@@ -55,6 +75,10 @@ class TableOfContentsParser(PropertyParserInterface):
 
         if len(toc_lines) == 0:
             return []
+        if self.__check_for_two_columns(toc_lines):
+            logger.warning("This report has probably two columns")
+        # for x in toc_lines:
+        #     print(x.strip())
 
         answer2 = []
 
