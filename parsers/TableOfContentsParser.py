@@ -103,6 +103,20 @@ class TableOfContentsParser(PropertyParserInterface):
         return answer2
 
     @staticmethod
+    def parser2(lines: List[str]) -> List[Tuple[str, str, int]]:
+        answer = []
+
+        for line in lines:
+            try:
+                identificator, rest = line.split(" ", 1)
+                name, page = rest.rsplit(" ", 1)
+                answer.append((identificator.strip(), name.strip(), page.strip()))
+            except ValueError as e:
+                logger.debug("Split failed")
+        return answer
+
+
+    @staticmethod
     def filter_lines_by_num_wildcard_num(lines: List[str], sep: str) -> List[str]:
         new_lines = []
         for line in lines:
@@ -116,19 +130,6 @@ class TableOfContentsParser(PropertyParserInterface):
             new_lines.append(new_line)
 
         return new_lines
-
-    @staticmethod
-    def parser2(lines: List[str]) -> List[Tuple[str, str, int]]:
-        answer = []
-
-        for line in lines:
-            try:
-                identificator, rest = line.split(" ", 1)
-                name, page = rest.rsplit(" ", 1)
-                answer.append((identificator.strip(), name.strip(), page.strip()))
-            except ValueError as e:
-                logger.debug("Split failed")
-        return answer
 
     def get_page_count(self) -> int:
         page_break_char = ""
