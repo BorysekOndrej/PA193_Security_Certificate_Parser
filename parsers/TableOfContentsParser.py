@@ -23,6 +23,15 @@ class TableOfContentsParser(PropertyParserInterface):
         b = list(map(lambda x: x.strip(), b))
         return b
 
+    @staticmethod
+    def __try_to_split_after_dot_space(a: str) -> List[str]:
+        b = a.split(". ", 1)
+        b = TableOfContentsParser.__remove_empty_strings_from_arr(b)
+        if len(b) == 2:
+            # print(b)
+            return [b[0], b[1]]
+        return [a]
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
         answer = list(filter(lambda x: sep in x, self.lines))
@@ -40,6 +49,9 @@ class TableOfContentsParser(PropertyParserInterface):
             if len(c) == 2:
                 index_part, name_part = self.__split_index_name(c[0])
                 try:
+                    res_attempt_to_split_name2 = self.__try_to_split_after_dot_space(index_part)
+                    if len(res_attempt_to_split_name2) == 2:
+                        index_part, name_part = res_attempt_to_split_name2
                     cur_part = (index_part, name_part, int(c[1]))
                     # print(cur_part)
                 except ValueError as e:
