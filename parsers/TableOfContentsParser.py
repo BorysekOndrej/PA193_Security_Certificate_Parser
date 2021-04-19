@@ -127,11 +127,20 @@ class TableOfContentsParser(PropertyParserInterface):
         # print(answer2)
         return answer2
 
+    @staticmethod
+    def parser2(lines: List[str], sep: str) -> List[Tuple[str, str, int]]:
+        return []
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
         toc_lines = self.__filter_by_magic_sep(self.lines, sep)
 
         if len(toc_lines) == 0:
+            logger.warning(f"Zero ToC lines detected using \"{sep}\" sep")
+            toc_lines = self.parser2(self.lines, sep)
+
+        if len(toc_lines) == 0:
+            logger.warning(f"Zero ToC lines detected using ^NUM*NUM$ heuristic")
             return []
 
         if self.__check_for_two_columns(toc_lines):
@@ -141,4 +150,7 @@ class TableOfContentsParser(PropertyParserInterface):
         # for x in toc_lines:
         #     print(x.strip())
 
-        return self.parser1(toc_lines, sep)
+        parser1_result = self.parser1(toc_lines, sep)
+        logger.warning(len(parser1_result))
+
+        return parser1_result
