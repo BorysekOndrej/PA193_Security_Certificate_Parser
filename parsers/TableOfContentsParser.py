@@ -42,13 +42,23 @@ class TableOfContentsParser(PropertyParserInterface):
             logger.warning(a)
             return -1
 
+    @staticmethod
+    def __filter_by_magic_sep(a: List[str], sep: str) -> List[str]:
+
+        new_lines = list(filter(lambda x: sep in x, a))
+        logger.warning(f"Lines filtered to {len(new_lines)} lines")
+        return new_lines
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
-        answer = list(filter(lambda x: sep in x, self.lines))
+        toc_lines = self.__filter_by_magic_sep(self.lines, sep)
+
+        if len(toc_lines) == 0:
+            return []
 
         answer2 = []
 
-        for single_line in answer:
+        for single_line in toc_lines:
             b = single_line.split(sep)
             c = self.__remove_empty_strings_from_arr(b)
 
