@@ -8,7 +8,7 @@ from PropertyParserInterface import PropertyParserInterface
 
 class TableOfContentsParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
-        self.toc_page_num_sep = "......."
+        self.toc_page_num_sep = "....."
         super().__init__(lines)
 
     @staticmethod
@@ -45,7 +45,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
     @staticmethod
     def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
-        dots_sep = ".........."
+        dots_sep = "....."
         space_sep = "    "
 
         dots1 = line.find(dots_sep)
@@ -101,6 +101,7 @@ class TableOfContentsParser(PropertyParserInterface):
         for single_line in lines:
             b = single_line.split(sep)
             c = TableOfContentsParser.__remove_empty_strings_from_arr(b)
+            # logger.info(c)
 
             if len(c):
                 c[-1] = c[-1].lstrip(".").lstrip()
@@ -177,6 +178,14 @@ class TableOfContentsParser(PropertyParserInterface):
         toc_lines = toc_lines_magic_sep
         if len(toc_lines_magic_sep) < len(toc_lines_num_wildcard_num):
             toc_lines = toc_lines_num_wildcard_num
+
+        toc_lines = list(filter(lambda x: " " in x, toc_lines))
+
+        # The following line does not improve the results, but does improve the readability of the intermediate results.
+        for i in range(30):
+            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + "..", self.toc_page_num_sep), toc_lines))
+
+        logger.debug(toc_lines)
 
         if len(toc_lines) == 0:
             logger.warning(f"Zero ToC lines find after trying all line filter approaches")
