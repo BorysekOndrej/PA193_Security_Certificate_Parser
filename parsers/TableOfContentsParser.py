@@ -142,6 +142,19 @@ class TableOfContentsParser(PropertyParserInterface):
 
         return new_lines
 
+    @staticmethod
+    def parser2(lines: List[str]) -> List[Tuple[str, str, int]]:
+        answer = []
+
+        for line in lines:
+            try:
+                identificator, rest = line.split(" ", 1)
+                name, page = rest.rsplit(" ", 1)
+                answer.append((identificator.strip(), name.strip(), page.strip()))
+            except ValueError as e:
+                logger.debug("Split failed")
+        return answer
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
         toc_lines_magic_sep = self.__filter_by_magic_sep(self.lines, sep)
@@ -159,10 +172,12 @@ class TableOfContentsParser(PropertyParserInterface):
             # logger.warning("This report has probably two columns")
             toc_lines = self.__decolumn_lines(toc_lines)
 
-        # for x in toc_lines:
-        #     print(x.strip())
+        parser_result = self.parser1(toc_lines, sep)
+        if len(parser_result) == 0:
+            parser_result = self.parser2(toc_lines)
 
-        parser1_result = self.parser1(toc_lines, sep)
-        logger.warning(len(parser1_result))
+        if len(parser_result) == 0:
+            logger.info(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
+            # logger.debug(toc_lines)
 
-        return parser1_result
+        return parser_result
