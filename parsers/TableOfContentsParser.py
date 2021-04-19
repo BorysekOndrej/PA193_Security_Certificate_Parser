@@ -79,23 +79,32 @@ class TableOfContentsParser(PropertyParserInterface):
 
             identificator_and_title, page_number_string = c
 
-            logger.warning(identificator_and_title)
-
-            split1 = list(filter(lambda x: len(x), identificator_and_title.split("  ")))
-            if len(split1) == 2:
-                index_part, name_part = split1[0].strip(), split1[1].strip()
-            else:
-                index_part, name_part = split1[0], split1[0]
-
-            res_attempt_to_split_name2 = index_part.split(". ", 1)
-            if len(res_attempt_to_split_name2) == 2:
-                index_part, name_part = res_attempt_to_split_name2
-
             try:
-                answer2.append((index_part, name_part, int(page_number_string)))
+                page_number_int = int(page_number_string)
             except ValueError as e:
-                logger.warning(c[1])
+                logger.warning(f"Page number is not int: {page_number_string}")
+                continue
                 pass
+
+            # logger.warning(identificator_and_title)
+
+            # currently unused fallback
+            # index_part, name_part = identificator_and_title, identificator_and_title
+
+            if "  " in identificator_and_title:
+                # Splitting using split(" ", 1) wouldn't work so well, because some of the parsed out parts don't have identificator.
+                split1 = list(filter(lambda x: len(x), identificator_and_title.split("  ")))
+
+                if len(split1) == 2:
+                    index_part, name_part = split1[0].strip(), split1[1].strip()
+                else:
+                    index_part, name_part = split1[0], split1[0]
+            else:
+                split2 = identificator_and_title.rsplit(". ", 1)
+                if len(split2) == 2:
+                    index_part, name_part = split2
+
+            answer2.append((index_part, name_part, page_number_int))
 
         return answer2
 
