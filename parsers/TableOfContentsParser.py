@@ -98,32 +98,25 @@ class TableOfContentsParser(PropertyParserInterface):
             if len(c):
                 c[-1] = c[-1].lstrip(".").lstrip()
 
-            cur_part = None
+            if len(c) != 2:
+                continue
 
-            if len(c) == 2:
-                split1 = list(filter(lambda x: len(x), c[0].split("  ")))
-                if len(split1) == 2:
-                    index_part, name_part = split1[0].strip(), split1[1].strip()
-                else:
-                    index_part, name_part = split1[0], split1[0]
+            split1 = list(filter(lambda x: len(x), c[0].split("  ")))
+            if len(split1) == 2:
+                index_part, name_part = split1[0].strip(), split1[1].strip()
+            else:
+                index_part, name_part = split1[0], split1[0]
 
-                page_number = TableOfContentsParser.__extract_number_at_the_start(c[1])
-                try:
-                    res_attempt_to_split_name2 = TableOfContentsParser.__try_to_split_after_dot_space(index_part)
-                    if len(res_attempt_to_split_name2) == 2:
-                        index_part, name_part = res_attempt_to_split_name2
-                    cur_part = (index_part, name_part, page_number)
-                    # cur_part = (index_part, name_part, int(c[1]))
-                    # print(cur_part)
-                except ValueError as e:
-                    print(c[1])
-                    # cur_part = (c[0], c[0], c[1])
-                    pass
+            page_number = TableOfContentsParser.__extract_number_at_the_start(c[1])
+            try:
+                res_attempt_to_split_name2 = TableOfContentsParser.__try_to_split_after_dot_space(index_part)
+                if len(res_attempt_to_split_name2) == 2:
+                    index_part, name_part = res_attempt_to_split_name2
+                answer2.append((index_part, name_part, page_number))
+            except ValueError as e:
+                print(c[1])
+                pass
 
-            if cur_part:
-                answer2.append(cur_part)
-
-        # print(answer2)
         return answer2
 
     @staticmethod
