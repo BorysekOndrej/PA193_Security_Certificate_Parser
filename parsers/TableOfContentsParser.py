@@ -155,6 +155,19 @@ class TableOfContentsParser(PropertyParserInterface):
                 logger.debug("Split failed")
         return answer
 
+    def filter_results_by_page_numbers(self, a: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
+        page_min = 1
+        page_break_char = ""
+
+        page_max = sum(map(lambda x: page_break_char in x, self.lines)) + 1
+        # loguru.debug(page_max)
+
+        try:
+            return list(filter(lambda x: page_min <= int(x[2]) <= page_max, a))
+        except ValueError as e:
+            logger.warning("Filter error - most likely non int in page number")
+        return a
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
         toc_lines_magic_sep = self.__filter_by_magic_sep(self.lines, sep)
@@ -179,5 +192,7 @@ class TableOfContentsParser(PropertyParserInterface):
         if len(parser_result) == 0:
             logger.info(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
             # logger.debug(toc_lines)
+
+        parser_result = self.filter_results_by_page_numbers(parser_result)
 
         return parser_result
