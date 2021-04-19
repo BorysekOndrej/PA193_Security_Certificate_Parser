@@ -75,6 +75,24 @@ class TableOfContentsParser(PropertyParserInterface):
         # logger.warning(f"Lines filtered to {len(new_lines)} lines")
         return new_lines
 
+    @staticmethod
+    def __decolumn_lines(lines: List[str]) -> List[str]:
+        new_lines = []
+
+        if not TableOfContentsParser.__check_for_two_columns(lines):
+            logger.warning("Calling __decolumn_lines on something that doesn't look like two columns")
+
+        for line in lines:
+            dots1, space1, dots2 = TableOfContentsParser.__two_column_format_align_check(line)
+            if space1 == -1:
+                new_lines.append(line)
+                continue
+            new_lines.append(line[:space1].strip())
+            new_lines.append(line[space1:].strip())
+            # print(line[space1:].strip())
+
+        return new_lines
+
     def parse(self) -> List[Tuple[str, str, int]]:
         sep = "......."
         toc_lines = self.__filter_by_magic_sep(self.lines, sep)
@@ -83,6 +101,7 @@ class TableOfContentsParser(PropertyParserInterface):
             return []
         if self.__check_for_two_columns(toc_lines):
             logger.warning("This report has probably two columns")
+            toc_lines = self.__decolumn_lines(toc_lines)
         # for x in toc_lines:
         #     print(x.strip())
 
@@ -92,7 +111,8 @@ class TableOfContentsParser(PropertyParserInterface):
             b = single_line.split(sep)
             c = self.__remove_empty_strings_from_arr(b)
 
-            c[-1] = c[-1].lstrip(".").lstrip()
+            if len(c):
+                c[-1] = c[-1].lstrip(".").lstrip()
 
             cur_part = None
 
