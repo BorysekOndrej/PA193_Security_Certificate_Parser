@@ -181,15 +181,19 @@ class TableOfContentsParser(PropertyParserInterface):
         return toc_lines
 
     def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
-        parser_result = self.parser1(toc_lines, self.toc_page_num_sep)
-        if len(parser_result) == 0:
-            parser_result = self.parser2(toc_lines)
+        parser_results = []
+        parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=True) )
+        # parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=False) )
+        parser_results.append( self.parser2(toc_lines) )
+        logger.debug(list(map(lambda x: len(x), parser_results)))
 
-        if len(parser_result) == 0:
-            logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
-            # logger.debug(toc_lines)
+        for single_result in parser_results:
+            if len(single_result) > 0:
+                return single_result
 
-        return parser_result
+        logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
+        # logger.debug(toc_lines)
+        return []
 
     def post_filter(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
         filtered_results = self.filter_results_by_page_numbers(possible_results)
