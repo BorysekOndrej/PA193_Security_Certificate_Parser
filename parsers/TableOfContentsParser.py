@@ -195,12 +195,17 @@ class TableOfContentsParser(PropertyParserInterface):
         # logger.debug(toc_lines)
         return []
 
-    def post_filter(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
+    def post_filters_and_maps(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
         filtered_results = self.filter_results_by_page_numbers(possible_results)
+        filtered_results = list(filter(lambda x: not x[0].startswith("Tab. "), filtered_results))
+        filtered_results = list(filter(lambda x: not x[0].startswith("Fig. "), filtered_results))
+        # filtered_results = list(filter(lambda x: x[0][0].isnumeric(), filtered_results)) # We also want thing labeled with letters.
+        filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results)) # Remove trailing dot from chapter identifiers
+
         return filtered_results
 
     def parse(self) -> List[Tuple[str, str, int]]:
         toc_lines = self.preprocess(self.lines)
         possible_results = self.main_parse(toc_lines)
-        filtered_results = self.post_filter(possible_results)
+        filtered_results = self.post_filters_and_maps(possible_results)
         return filtered_results
