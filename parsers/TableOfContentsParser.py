@@ -63,12 +63,12 @@ class TableOfContentsParser(PropertyParserInterface):
         return new_lines
 
     @staticmethod
-    def parser1(lines: List[str], sep: str) -> List[Tuple[str, str, int]]:
+    def parser1(lines: List[str], sep: str, require_sep=False) -> List[Tuple[str, str, int]]:
         answer2 = []
 
         for single_line in lines:
             # logger.warning(single_line)
-            if sep not in single_line:
+            if require_sep and sep not in single_line:
                 continue
             c = single_line.replace(sep, " ").rsplit(" ", 1)
             c = list(map(lambda x: x.strip(), c))  # Remove all whitechars from components
@@ -88,8 +88,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
             # logger.warning(identificator_and_title)
 
-            # currently unused fallback
-            # index_part, name_part = identificator_and_title, identificator_and_title
+            index_part, name_part = identificator_and_title, identificator_and_title
 
             if "  " in identificator_and_title:
                 # Splitting using split(" ", 1) wouldn't work so well, because some of the parsed out parts don't have identificator.
@@ -102,7 +101,7 @@ class TableOfContentsParser(PropertyParserInterface):
             else:
                 split2 = identificator_and_title.rsplit(". ", 1)
                 if len(split2) == 2:
-                    index_part, name_part = split2
+                    index_part, name_part = split2[0].strip(), split2[1].strip()
 
             answer2.append((index_part, name_part, page_number_int))
 
