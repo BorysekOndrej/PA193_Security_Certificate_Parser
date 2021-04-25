@@ -1,6 +1,6 @@
 .idea
 .vscode
-results/jsons
+results
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

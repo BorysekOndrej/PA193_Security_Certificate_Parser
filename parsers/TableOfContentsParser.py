@@ -115,9 +115,15 @@ class TableOfContentsParser(PropertyParserInterface):
             try:
                 identificator, rest = line.split(" ", 1)
                 name, page = rest.rsplit(" ", 1)
-                answer.append((identificator.strip(), name.strip(), page.strip()))
+                try:
+                    answer.append((identificator.strip(), name.strip(), int(page.strip())))
+                except ValueError as e:
+                    # logger.debug("Page is not int")
+                    answer.append((identificator.strip(), name.strip(), page.strip()))
+                    pass
             except ValueError as e:
-                logger.debug("Split failed")
+                # logger.debug("Split failed")
+                pass
         return answer
 
 
