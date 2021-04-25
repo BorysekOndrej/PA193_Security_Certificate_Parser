@@ -216,59 +216,6 @@ def get_page_count(lines: List[str]) -> int:
 
 
 
-class RemoveHeadersAndFooters:
-    """
-        This class was a test to check whether or not we could safely remove the headers and footers of pages.
-        Footers seemed to be mostly fine, but headers were a problem - in some cases there were no headers and it's not easy to detect that.
-        The headers are not always static, so even checking against previous headers wouldn't help. This was abandoned.
-    """
-    @staticmethod
-    def remove_header_and_footer(lines: List[str]) -> List[str]:
-        page_breaks = []
-        page_break_char = get_page_break_char()
-
-        for i in range(len(lines)):
-            if page_break_char in lines[i]:
-                page_breaks.append(i)
-
-        footer_and_header_ofsets = []
-        for i in range(len(page_breaks)-1):
-            footer_and_header_ofsets.append(RemoveHeadersAndFooters.__count_non_empty_lines_before_and_after(lines, page_breaks[i]))
-        footer_offset_min = min(map(lambda x: x[0], footer_and_header_ofsets))
-        # header_offset_min = min(map(lambda x: x[1], footer_and_header_ofsets))
-        header_offset_min = 0
-
-        if footer_offset_min > 5:
-            footer_offset_min = 0
-
-        # logger.debug((footer_offset_min, header_offset_min))
-
-        cur_row = 0
-        answer = []
-        for i in range(len(page_breaks) - 1):
-            answer += lines[cur_row:max(0, page_breaks[i]-footer_offset_min)]
-            cur_row = min(len(lines), page_breaks[i]+header_offset_min)
-
-        answer += lines[cur_row:len(lines)]
-        # logger.debug(page_breaks)
-
-        return answer
-
-    @staticmethod
-    def __count_non_empty_lines_before_and_after(lines: List[str], line_index: int) -> Tuple[int, int]:
-        before = 0
-        after = 0
-        for i in range(line_index, len(lines)):
-            if len(lines[i].strip()) == 0:
-                break
-            after += 1
-        for i in range(line_index, 0, -1):
-            if len(lines[i].strip()) == 0:
-                break
-            before += 1
-
-        return before, after
-
 
 class FilterLinesBySectionKeyword:
     possible_starts = ["CONTENTS:", "TABLE OF CONTENTS"]
@@ -426,3 +373,63 @@ class FilterLinesByNumWildcardNum:
             new_lines.append(new_line)
 
         return new_lines
+
+
+if False:
+    # The code here is kept so that we have it for future prototyping, but disabled so that it's not used.
+
+    class RemoveHeadersAndFooters:
+        """
+            This class was a test to check whether or not we could safely remove the headers and footers of pages.
+            Footers seemed to be mostly fine, but headers were a problem - in some cases there were no headers and it's not easy to detect that.
+            The headers are not always static, so even checking against previous headers wouldn't help. This was abandoned.
+        """
+
+        @staticmethod
+        def remove_header_and_footer(lines: List[str]) -> List[str]:
+            page_breaks = []
+            page_break_char = get_page_break_char()
+
+            for i in range(len(lines)):
+                if page_break_char in lines[i]:
+                    page_breaks.append(i)
+
+            footer_and_header_ofsets = []
+            for i in range(len(page_breaks) - 1):
+                footer_and_header_ofsets.append(
+                    RemoveHeadersAndFooters.__count_non_empty_lines_before_and_after(lines, page_breaks[i]))
+            footer_offset_min = min(map(lambda x: x[0], footer_and_header_ofsets))
+            # header_offset_min = min(map(lambda x: x[1], footer_and_header_ofsets))
+            header_offset_min = 0
+
+            if footer_offset_min > 5:
+                footer_offset_min = 0
+
+            # logger.debug((footer_offset_min, header_offset_min))
+
+            cur_row = 0
+            answer = []
+            for i in range(len(page_breaks) - 1):
+                answer += lines[cur_row:max(0, page_breaks[i] - footer_offset_min)]
+                cur_row = min(len(lines), page_breaks[i] + header_offset_min)
+
+            answer += lines[cur_row:len(lines)]
+            # logger.debug(page_breaks)
+
+            return answer
+
+        @staticmethod
+        def __count_non_empty_lines_before_and_after(lines: List[str], line_index: int) -> Tuple[int, int]:
+            before = 0
+            after = 0
+            for i in range(line_index, len(lines)):
+                if len(lines[i].strip()) == 0:
+                    break
+                after += 1
+            for i in range(line_index, 0, -1):
+                if len(lines[i].strip()) == 0:
+                    break
+                before += 1
+
+            return before, after
+
