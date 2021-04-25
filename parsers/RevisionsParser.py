@@ -184,6 +184,21 @@ class RevisionsParser(PropertyParserInterface):
         table['description'] = table['description'].map(self.process_desc)
         return table
 
+    def dataframe_to_dict(self, table: pd.DataFrame) -> List[dict]:
+        out = []
+        for i, row in table.iterrows():
+            revision_item = dict()
+            if 'version' in table.columns:
+                revision_item['version'] = row['version']
+            else: revision_item['version'] = ""
+            if 'date' in table.columns:
+                revision_item['date'] = row['date']
+            else: revision_item['date'] = ""
+            if 'description' in table.columns:
+                revision_item['description'] = row['description']
+            else: revision_item['description'] = ""
+            out.append(revision_item)
+        return out
 
     def parse(self) -> List[dict]:
         keywords = ['Revision History', 'Version Control']
@@ -191,5 +206,7 @@ class RevisionsParser(PropertyParserInterface):
         table = self.find_table(indexes, self.lines)
         if len(table) > 0:
             table = self.postprocess(table)
+            return self.dataframe_to_dict(table)
         #print(table)
+        
         return []
