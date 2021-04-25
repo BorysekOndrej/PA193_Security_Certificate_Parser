@@ -15,51 +15,40 @@ class TableOfContentsParser(PropertyParserInterface):
         super().__init__(lines)
 
     def preprocess(self, lines: List[str]) -> List[str]:
-        # lines = self.remove_header_and_footer(lines)
-
-        toc_lines_magic_sep = FilterByMagicSep.filter_by_magic_sep(lines, DOTS_SEP)
-        toc_lines_num_wildcard_num = FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, DOTS_SEP)
-        toc_lines_start_section_by_keyword = FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
+        toc_suspected_lines = {
+            "MAGIC_SEP": FilterByMagicSep.filter_by_magic_sep(lines, DOTS_SEP),
+            "NUM_BODY_NUM": FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, DOTS_SEP),
+            "SECTION_KEYWORD": FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
+        }
 
         min_line_length = 16
-        toc_lines_magic_sep = list(filter(lambda x: len(x) >= min_line_length, toc_lines_magic_sep))
-        toc_lines_num_wildcard_num = list(filter(lambda x: len(x) >= min_line_length, toc_lines_num_wildcard_num))
-        toc_lines_start_section_by_keyword = list(filter(lambda x: len(x) >= min_line_length, toc_lines_start_section_by_keyword))
+        for key in toc_suspected_lines:
+            toc_suspected_lines[key] = list(filter(lambda x: " " in x, toc_suspected_lines[key]))
+            toc_suspected_lines[key] = list(filter(lambda x: len(x) >= min_line_length, toc_suspected_lines[key]))
 
-        toc_lines = toc_lines_magic_sep
-        used_approach = "MAGIC_SEP"
+        logger.debug(
+            f"ToC line lengths {[list(map(lambda key: (key, len(toc_suspected_lines[key]) ), toc_suspected_lines))]}")
 
-        if len(toc_lines) < len(toc_lines_num_wildcard_num):
-            used_approach = "NUM WILDCARD"
-            toc_lines = toc_lines_num_wildcard_num
+        toc_lines = []
+        used_approach = "NONE"
 
-        if len(toc_lines) < len(toc_lines_start_section_by_keyword):
-            used_approach = "KEYWORD"
-            # logger.debug(toc_lines)
-            # logger.debug(toc_lines_start_section_by_keyword)
-            toc_lines = toc_lines_start_section_by_keyword
+        for key in toc_suspected_lines:
+            if len(toc_lines) < len(toc_suspected_lines[key]):
+                toc_lines = toc_suspected_lines[key]
+                used_approach = key
 
-        logger.error(used_approach)
+        if len(toc_lines) == 0:
+            logger.warning(f"Zero ToC lines find after trying all line filter approaches")
+            return []
 
-        # logger.debug(
-        #     f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
-
-        # logger.debug(toc_lines_num_wildcard_num)
-        # logger.debug(toc_lines_start_section_by_keyword)
-
-        toc_lines = list(filter(lambda x: " " in x, toc_lines))
+        logger.debug(used_approach)
 
         # The following line does not improve the results, but does improve the readability of the intermediate results.
         for i in range(30):
             toc_lines = list(map(lambda x: x.replace(DOTS_SEP + "."*5, DOTS_SEP), toc_lines))  # This is just a way to replace it quicker
             toc_lines = list(map(lambda x: x.replace(DOTS_SEP + ".", DOTS_SEP), toc_lines))
 
-        if len(toc_lines) == 0:
-            logger.warning(f"Zero ToC lines find after trying all line filter approaches")
-            return []
-
         toc_lines = DecolumnLines.decolumn_lines(toc_lines)
-
         # logger.debug(toc_lines)
 
         return toc_lines
