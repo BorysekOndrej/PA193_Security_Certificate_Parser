@@ -237,7 +237,7 @@ class DecolumnLines:
         return new_lines
 
 
-def get_page_break_char():
+def get_page_break_char() -> str:
     return ""
 
 
@@ -249,7 +249,7 @@ class FilterLinesBySectionKeyword:
     possible_starts = ["CONTENTS:", "TABLE OF CONTENTS"]
 
     @staticmethod
-    def filter_lines_by_section_keyword(lines):
+    def filter_lines_by_section_keyword(lines: List[str]) -> int:
 
         section_start_line_id = FilterLinesBySectionKeyword.get_toc_section_start(lines)
         if section_start_line_id == -1:
@@ -258,30 +258,19 @@ class FilterLinesBySectionKeyword:
         if section_end_line_id == -1:
             return []
 
-        # random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
-        # with open(random_filename+".removed_headers_and_footers.txt", "w", encoding="utf8") as f:
-        #     f.writelines(self.remove_header_and_footer(lines))
-
-
-        # with open(random_filename+".raw.txt", "w", encoding="utf8") as f:
-        #     f.writelines(lines[section_start_line_id:section_start_line_id+100])
-
         answer = list(filter(lambda x: len(x.strip()), lines[section_start_line_id+1:section_end_line_id]))
         answer = list(filter(lambda x: x.strip()[-1].isnumeric(), answer))
         answer = list(map(lambda x: x.strip(), answer))
-
-        # with open(random_filename + ".guessed.txt", "w", encoding="utf8") as f:
-        #     f.writelines(answer)
 
         # logger.debug(random_filename)
         return answer
 
     @staticmethod
-    def get_toc_section_start(lines):
+    def get_toc_section_start(lines: List[str]) -> int:
         section_start = -1
-        answer = []
         # max_possible_start_len = max(map(lambda x: len(x), possible_starts))
         line_id = 0
+
         for line in lines:
             line_stripped = line.strip().lower()
             # if len(line_stripped) > max_possible_start_len + 5:
@@ -298,7 +287,7 @@ class FilterLinesBySectionKeyword:
         return section_start
 
     @staticmethod
-    def get_first_non_empty_non_numeric_ending_line_id(lines, start_line_id):
+    def get_first_non_empty_non_numeric_ending_line_id(lines: List[str], start_line_id: int) -> int:
         for line_id in range(start_line_id, len(lines)):
             line_stripped = lines[line_id].strip().lower()
             if sum(map(lambda x: x.lower() in line_stripped, FilterLinesBySectionKeyword.possible_starts)):
