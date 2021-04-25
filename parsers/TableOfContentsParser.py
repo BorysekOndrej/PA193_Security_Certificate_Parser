@@ -300,12 +300,12 @@ class FilterResultsByPageNumbers:
 
 
 class FilterByMagicSep:
+    """
+        This class does a simple thing: it just filters line based on the presence of some substring.
+    """
     @staticmethod
-    def filter_by_magic_sep(a: List[str], sep: str) -> List[str]:
-
-        new_lines = list(filter(lambda x: sep in x, a))
-        # logger.warning(f"Lines filtered to {len(new_lines)} lines")
-        return new_lines
+    def filter_by_magic_sep(lines: List[str], sep: str) -> List[str]:
+        return list(filter(lambda x: sep in x, lines))
 
 
 class Parser2:
