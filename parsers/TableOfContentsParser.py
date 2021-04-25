@@ -58,6 +58,9 @@ class TableOfContentsParser(PropertyParserInterface):
         toc_lines = DecolumnLines.decolumn_lines(toc_lines)
         # logger.debug(toc_lines)
 
+        toc_lines = list(map(lambda x: x.strip(), toc_lines))  # Remove all whitechars from components
+        toc_lines = list(filter(lambda x: len(x), toc_lines))  # Keep only components with non zero length
+
         return toc_lines
 
     @staticmethod
