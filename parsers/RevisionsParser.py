@@ -52,21 +52,40 @@ class RevisionsParser(PropertyParserInterface):
     def extract_two_column_table(self, lines: List[str]):
         """ Tries to extract two-column table """
         table_header_keywords = ['Date', 'Description', 'Rev', 'Revision', 'Version']
-        table_header = ""
+        table_header = []
+        table_header_found = False
+        column1_start_ids = []
+        column2_start_ids = []
         table = []
         # TODO: work more with false lines
         false_lines = 0
+        final_lines = 0
         for line in lines:
             result = re.findall(self.twoColumns, line)
             if false_lines > 5: return []
+            if len(table) > 0:
+                if line == '\n':
+                    final_lines += 1
+                else:
+                    final_lines = 0
             if len(result) == 0:
                 false_lines += 1
                 continue
             # TODO: work more with header. What if no header? 
-            if self.is_table_header(line, table_header_keywords):
-                table_header = line
-            # TODO: if header found no need to add
+            if not table_header_found and self.is_table_header(line, table_header_keywords):
+                columns = re.split(r" {2,}", line)
+                if len(columns) == 2:
+                    table_header = columns
+                    table_header_found = True
+                    # find start indexes of headers
+                    #ids = self.extract_formatting_params(line)
+                    #column1_start_ids.append(ids[0])
+                    #column2_start_ids.append(ids[1])
+                continue
+
             table.append(line)
+            
+
             
 
     def find_table(self, start: List[int], lines: List[str]):
