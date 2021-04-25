@@ -102,6 +102,14 @@ class TableOfContentsParser(PropertyParserInterface):
 
 
 class Parser1:
+    """
+        This parser to tries to take every line and check, whether it's in format:
+            (leading whitespace)number anything number(trailing whitespace)
+        If both the first number and the last number is correctly parsed, it's added to the result.
+
+        It also has the option to split not on space, but also on custom separator.
+        In addition it also allows to prefilter lines based on the presence of the separateror. This is intended to find lines with sep "...." which is common in ToCs.
+    """
 
     @staticmethod
     def parser1(lines: List[str], sep: str, require_sep=False) -> List[Tuple[str, str, int]]:
@@ -143,6 +151,10 @@ class Parser1:
                 split2 = identificator_and_title.rsplit(". ", 1)
                 if len(split2) == 2:
                     index_part, name_part = split2[0].strip(), split2[1].strip()
+
+            # This cleans up the result, but slightly lowers the overall score.
+            # if index_part == name_part:
+            #     continue
 
             answer2.append((index_part, name_part, page_number_int))
 
