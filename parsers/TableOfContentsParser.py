@@ -211,7 +211,7 @@ class TableOfContentsParser(PropertyParserInterface):
         if section_end_line_id == -1:
             return []
 
-        random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
+        # random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
         # with open(random_filename+".raw.txt", "w", encoding="utf8") as f:
         #     f.writelines(lines[section_start_line_id:section_start_line_id+100])
 
@@ -222,7 +222,7 @@ class TableOfContentsParser(PropertyParserInterface):
         # with open(random_filename + ".guessed.txt", "w", encoding="utf8") as f:
         #     f.writelines(answer)
 
-        logger.debug(random_filename)
+        # logger.debug(random_filename)
         return answer
 
 
@@ -234,15 +234,17 @@ class TableOfContentsParser(PropertyParserInterface):
         toc_lines = toc_lines_magic_sep
         if len(toc_lines) < len(toc_lines_num_wildcard_num):
             toc_lines = toc_lines_num_wildcard_num
+
         if len(toc_lines) < len(toc_lines_start_section_by_keyword):
             logger.debug(toc_lines)
             logger.debug(toc_lines_start_section_by_keyword)
-
-            logger.debug(
-                f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
             toc_lines = toc_lines_start_section_by_keyword
-        # else:
-        #     return []
+
+        # logger.debug(
+        #     f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
+
+        # logger.debug(toc_lines_num_wildcard_num)
+        # logger.debug(toc_lines_start_section_by_keyword)
 
         toc_lines = list(filter(lambda x: " " in x, toc_lines))
 
