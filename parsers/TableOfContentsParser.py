@@ -9,6 +9,7 @@ from PropertyParserInterface import PropertyParserInterface
 
 DOTS_SEP = "....."  # todo: This has to match the internal attribute of the class
 
+
 class TableOfContentsParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
         super().__init__(lines)
@@ -216,21 +217,6 @@ def get_page_count(lines: List[str]) -> int:
 
 class RemoveHeadersAndFooters:
     def remove_header_and_footer(self, lines: List[str]) -> List[str]:
-
-        def count_non_empty_lines_before_and_after(lines: List[str], line_index: int) -> Tuple[int, int]:
-            before = 0
-            after = 0
-            for i in range(line_index, len(lines)):
-                if len(lines[i].strip()) == 0:
-                    break
-                after += 1
-            for i in range(line_index, 0, -1):
-                if len(lines[i].strip()) == 0:
-                    break
-                before += 1
-
-            return before, after
-
         page_breaks = []
         page_break_char = get_page_break_char()
 
@@ -240,7 +226,7 @@ class RemoveHeadersAndFooters:
 
         footer_and_header_ofsets = []
         for i in range(len(page_breaks)-1):
-            footer_and_header_ofsets.append(count_non_empty_lines_before_and_after(lines, page_breaks[i]))
+            footer_and_header_ofsets.append(self.__count_non_empty_lines_before_and_after(lines, page_breaks[i]))
         footer_offset_min = min(map(lambda x: x[0], footer_and_header_ofsets))
         # header_offset_min = min(map(lambda x: x[1], footer_and_header_ofsets))
         header_offset_min = 0
@@ -260,6 +246,21 @@ class RemoveHeadersAndFooters:
         # logger.debug(page_breaks)
 
         return answer
+
+    @staticmethod
+    def __count_non_empty_lines_before_and_after(lines: List[str], line_index: int) -> Tuple[int, int]:
+        before = 0
+        after = 0
+        for i in range(line_index, len(lines)):
+            if len(lines[i].strip()) == 0:
+                break
+            after += 1
+        for i in range(line_index, 0, -1):
+            if len(lines[i].strip()) == 0:
+                break
+            before += 1
+
+        return before, after
 
 
 class FilterLinesBySectionKeyword:
