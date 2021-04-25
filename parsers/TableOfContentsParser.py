@@ -412,9 +412,11 @@ if False:
 
 
     class FilterChaptersDirectlyFromText:
+        """
+            This approach is not viable, because it also extracts for example numerical lists
+        """
         @staticmethod
         def filter_chapters_directly_from_text(lines: List[str]) -> List[str]:
-            # This approach is not viable, because it also extracts numerical lists
             answer = []
             for line in lines:
                 line_stripped = line.strip()
