@@ -8,6 +8,99 @@ from loguru import logger
 from PropertyParserInterface import PropertyParserInterface
 
 
+class TableOfContentsParser(PropertyParserInterface):
+    def __init__(self, lines: List[str]):
+        self.toc_page_num_sep = "....."
+        super().__init__(lines)
+
+    def preprocess(self, lines: List[str]) -> List[str]:
+        # lines = self.remove_header_and_footer(lines)
+
+        toc_lines_magic_sep = FilterByMagicSep.filter_by_magic_sep(lines, self.toc_page_num_sep)
+        toc_lines_num_wildcard_num = FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
+        toc_lines_start_section_by_keyword = FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
+
+        min_line_length = 16
+        toc_lines_magic_sep = list(filter(lambda x: len(x) >= min_line_length, toc_lines_magic_sep))
+        toc_lines_num_wildcard_num = list(filter(lambda x: len(x) >= min_line_length, toc_lines_num_wildcard_num))
+        toc_lines_start_section_by_keyword = list(filter(lambda x: len(x) >= min_line_length, toc_lines_start_section_by_keyword))
+
+        toc_lines = toc_lines_magic_sep
+        used_approach = "MAGIC_SEP"
+
+        if len(toc_lines) < len(toc_lines_num_wildcard_num):
+            used_approach = "NUM WILDCARD"
+            toc_lines = toc_lines_num_wildcard_num
+
+        if len(toc_lines) < len(toc_lines_start_section_by_keyword):
+            used_approach = "KEYWORD"
+            # logger.debug(toc_lines)
+            # logger.debug(toc_lines_start_section_by_keyword)
+            toc_lines = toc_lines_start_section_by_keyword
+
+        logger.error(used_approach)
+
+        # logger.debug(
+        #     f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
+
+        # logger.debug(toc_lines_num_wildcard_num)
+        # logger.debug(toc_lines_start_section_by_keyword)
+
+        toc_lines = list(filter(lambda x: " " in x, toc_lines))
+
+        # The following line does not improve the results, but does improve the readability of the intermediate results.
+        for i in range(30):
+            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".....", self.toc_page_num_sep), toc_lines))
+            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".", self.toc_page_num_sep), toc_lines))
+
+        if len(toc_lines) == 0:
+            logger.warning(f"Zero ToC lines find after trying all line filter approaches")
+            return []
+
+        if DecolumnLines.check_for_two_columns(toc_lines):
+            # logger.warning("This report has probably two columns")
+            toc_lines = DecolumnLines.decolumn_lines(toc_lines)
+
+        # logger.debug(toc_lines)
+
+        return toc_lines
+
+    def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
+        if len(toc_lines) == 0:
+            return []
+
+        parser_results = []
+        parser_results.append( Parser1.parser1(toc_lines, self.toc_page_num_sep, require_sep=True) )
+        # parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=False) )
+        parser_results.append( Parser2.parser2(toc_lines) )
+        # logger.debug(list(map(lambda x: len(x), parser_results)))
+
+        for single_result in parser_results:
+            if len(single_result) > 0:
+                return single_result
+
+        logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
+        # logger.debug(toc_lines)
+        return []
+
+    def post_filters_and_maps(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
+        filtered_results = FilterResultsByPageNumbers.filter_results_by_page_numbers(self.lines, possible_results)
+        filtered_results = list(filter(lambda x: not x[0].startswith("Tab. "), filtered_results))
+        filtered_results = list(filter(lambda x: not x[0].startswith("Fig. "), filtered_results))
+        # filtered_results = list(filter(lambda x: x[0][0].isnumeric(), filtered_results))  # We also want thing labeled with letters.
+        filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results))  # Remove trailing dot from chapter identifiers
+        filtered_results = sorted(filtered_results, key=lambda x: x[2])  # Sort by page. Sorted is guaranteed to be stable.
+
+        return filtered_results
+
+    def parse(self) -> List[Tuple[str, str, int]]:
+        toc_lines = self.preprocess(self.lines)
+        possible_results = self.main_parse(toc_lines)
+        filtered_results = self.post_filters_and_maps(possible_results)
+        return filtered_results
+
+
+
 class Parser1:
 
     @staticmethod
@@ -315,95 +408,3 @@ class FilterLinesByNumWildcardNum:
             new_lines.append(new_line)
 
         return new_lines
-
-
-class TableOfContentsParser(PropertyParserInterface):
-    def __init__(self, lines: List[str]):
-        self.toc_page_num_sep = "....."
-        super().__init__(lines)
-
-    def preprocess(self, lines: List[str]) -> List[str]:
-        # lines = self.remove_header_and_footer(lines)
-
-        toc_lines_magic_sep = FilterByMagicSep.filter_by_magic_sep(lines, self.toc_page_num_sep)
-        toc_lines_num_wildcard_num = FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
-        toc_lines_start_section_by_keyword = FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
-
-        min_line_length = 16
-        toc_lines_magic_sep = list(filter(lambda x: len(x) >= min_line_length, toc_lines_magic_sep))
-        toc_lines_num_wildcard_num = list(filter(lambda x: len(x) >= min_line_length, toc_lines_num_wildcard_num))
-        toc_lines_start_section_by_keyword = list(filter(lambda x: len(x) >= min_line_length, toc_lines_start_section_by_keyword))
-
-        toc_lines = toc_lines_magic_sep
-        used_approach = "MAGIC_SEP"
-
-        if len(toc_lines) < len(toc_lines_num_wildcard_num):
-            used_approach = "NUM WILDCARD"
-            toc_lines = toc_lines_num_wildcard_num
-
-        if len(toc_lines) < len(toc_lines_start_section_by_keyword):
-            used_approach = "KEYWORD"
-            # logger.debug(toc_lines)
-            # logger.debug(toc_lines_start_section_by_keyword)
-            toc_lines = toc_lines_start_section_by_keyword
-
-        logger.error(used_approach)
-
-        # logger.debug(
-        #     f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
-
-        # logger.debug(toc_lines_num_wildcard_num)
-        # logger.debug(toc_lines_start_section_by_keyword)
-
-        toc_lines = list(filter(lambda x: " " in x, toc_lines))
-
-        # The following line does not improve the results, but does improve the readability of the intermediate results.
-        for i in range(30):
-            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".....", self.toc_page_num_sep), toc_lines))
-            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".", self.toc_page_num_sep), toc_lines))
-
-        if len(toc_lines) == 0:
-            logger.warning(f"Zero ToC lines find after trying all line filter approaches")
-            return []
-
-        if DecolumnLines.check_for_two_columns(toc_lines):
-            # logger.warning("This report has probably two columns")
-            toc_lines = DecolumnLines.decolumn_lines(toc_lines)
-
-        # logger.debug(toc_lines)
-
-        return toc_lines
-
-    def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
-        if len(toc_lines) == 0:
-            return []
-
-        parser_results = []
-        parser_results.append( Parser1.parser1(toc_lines, self.toc_page_num_sep, require_sep=True) )
-        # parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=False) )
-        parser_results.append( Parser2.parser2(toc_lines) )
-        # logger.debug(list(map(lambda x: len(x), parser_results)))
-
-        for single_result in parser_results:
-            if len(single_result) > 0:
-                return single_result
-
-        logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
-        # logger.debug(toc_lines)
-        return []
-
-    def post_filters_and_maps(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
-        filtered_results = FilterResultsByPageNumbers.filter_results_by_page_numbers(self.lines, possible_results)
-        filtered_results = list(filter(lambda x: not x[0].startswith("Tab. "), filtered_results))
-        filtered_results = list(filter(lambda x: not x[0].startswith("Fig. "), filtered_results))
-        # filtered_results = list(filter(lambda x: x[0][0].isnumeric(), filtered_results))  # We also want thing labeled with letters.
-        filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results))  # Remove trailing dot from chapter identifiers
-        filtered_results = sorted(filtered_results, key=lambda x: x[2])  # Sort by page. Sorted is guaranteed to be stable.
-
-        return filtered_results
-
-    def parse(self) -> List[Tuple[str, str, int]]:
-        toc_lines = self.preprocess(self.lines)
-        possible_results = self.main_parse(toc_lines)
-        filtered_results = self.post_filters_and_maps(possible_results)
-        return filtered_results
