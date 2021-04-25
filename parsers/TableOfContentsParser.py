@@ -96,6 +96,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
         for single_start in forbidden_starts:
             filtered_results = list(filter(lambda x: not x[0].startswith(single_start), filtered_results))
+            filtered_results = list(filter(lambda x: not x[1].startswith(single_start), filtered_results))
 
         # filtered_results = list(filter(lambda x: x[0].isnumeric(), filtered_results))  # We also want things labeled with letters.
         filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results))  # Remove trailing dot from chapter identifiers
