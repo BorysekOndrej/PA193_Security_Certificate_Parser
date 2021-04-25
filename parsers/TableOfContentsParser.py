@@ -7,17 +7,17 @@ from loguru import logger
 
 from PropertyParserInterface import PropertyParserInterface
 
+DOTS_SEP = "....."  # todo: This has to match the internal attribute of the class
 
 class TableOfContentsParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
-        self.toc_page_num_sep = "....."
         super().__init__(lines)
 
     def preprocess(self, lines: List[str]) -> List[str]:
         # lines = self.remove_header_and_footer(lines)
 
-        toc_lines_magic_sep = FilterByMagicSep.filter_by_magic_sep(lines, self.toc_page_num_sep)
-        toc_lines_num_wildcard_num = FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
+        toc_lines_magic_sep = FilterByMagicSep.filter_by_magic_sep(lines, DOTS_SEP)
+        toc_lines_num_wildcard_num = FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, DOTS_SEP)
         toc_lines_start_section_by_keyword = FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
 
         min_line_length = 16
@@ -50,16 +50,14 @@ class TableOfContentsParser(PropertyParserInterface):
 
         # The following line does not improve the results, but does improve the readability of the intermediate results.
         for i in range(30):
-            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".....", self.toc_page_num_sep), toc_lines))
-            toc_lines = list(map(lambda x: x.replace(self.toc_page_num_sep + ".", self.toc_page_num_sep), toc_lines))
+            toc_lines = list(map(lambda x: x.replace(DOTS_SEP + "."*5, DOTS_SEP), toc_lines))  # This is just a way to replace it quicker
+            toc_lines = list(map(lambda x: x.replace(DOTS_SEP + ".", DOTS_SEP), toc_lines))
 
         if len(toc_lines) == 0:
             logger.warning(f"Zero ToC lines find after trying all line filter approaches")
             return []
 
-        if DecolumnLines.check_for_two_columns(toc_lines):
-            # logger.warning("This report has probably two columns")
-            toc_lines = DecolumnLines.decolumn_lines(toc_lines)
+        toc_lines = DecolumnLines.decolumn_lines(toc_lines)
 
         # logger.debug(toc_lines)
 
@@ -70,8 +68,8 @@ class TableOfContentsParser(PropertyParserInterface):
             return []
 
         parser_results = []
-        parser_results.append( Parser1.parser1(toc_lines, self.toc_page_num_sep, require_sep=True) )
-        # parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=False) )
+        parser_results.append( Parser1.parser1(toc_lines, DOTS_SEP, require_sep=True) )
+        # parser_results.append( self.parser1(toc_lines, DOTS_SEP, require_sep=False) )
         parser_results.append( Parser2.parser2(toc_lines) )
         # logger.debug(list(map(lambda x: len(x), parser_results)))
 
@@ -161,24 +159,22 @@ class Parser1:
         return answer2
 
 
-
 class DecolumnLines:
     @staticmethod
-    def two_column_format_align_check(line: str) -> Tuple[int, int, int]:
-        dots_sep = "....."  # todo: This has to match the internal attribute of the class
+    def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
         space_sep = "    "
 
-        dots1 = line.find(dots_sep)
+        dots1 = line.find(DOTS_SEP)
         space1 = line.find(space_sep, dots1 + 2)
-        dots2 = line.find(dots_sep, space1 + 2)
+        dots2 = line.find(DOTS_SEP, space1 + 2)
         return dots1, space1, dots2
 
     @staticmethod
-    def check_for_two_columns(a: List[str]) -> bool:
+    def __check_for_two_columns(a: List[str]) -> bool:
         suspected_two_columns = 0
 
         for line in a:
-            dots1, space1, dots2 = DecolumnLines.two_column_format_align_check(line)
+            dots1, space1, dots2 = DecolumnLines.__two_column_format_align_check(line)
             if dots1 == -1 or space1 == -1 or dots2 == -1:
                 continue
             suspected_two_columns += 1
@@ -193,11 +189,13 @@ class DecolumnLines:
     def decolumn_lines(lines: List[str]) -> List[str]:
         new_lines = []
 
-        if not DecolumnLines.check_for_two_columns(lines):
-            logger.warning("Calling __decolumn_lines on something that doesn't look like two columns")
+        if not DecolumnLines.__check_for_two_columns(lines):
+            return lines
+
+        # logger.debug("Possible two columns detected. Splitting the line")
 
         for line in lines:
-            dots1, space1, dots2 = DecolumnLines.two_column_format_align_check(line)
+            dots1, space1, dots2 = DecolumnLines.__two_column_format_align_check(line)
             if space1 == -1:
                 new_lines.append(line)
                 continue
