@@ -99,7 +99,6 @@ class TableOfContentsParser(PropertyParserInterface):
         return filtered_results
 
 
-
 class Parser1:
     """
         This parser to tries to take every line and check, whether it's in format:
@@ -215,8 +214,6 @@ def get_page_count(lines: List[str]) -> int:
     return sum(map(lambda x: get_page_break_char() in x, lines))
 
 
-
-
 class FilterLinesBySectionKeyword:
     possible_starts = ["CONTENTS:", "TABLE OF CONTENTS"]
 
@@ -298,7 +295,6 @@ class FilterResultsByPageNumbers:
             # logger.warning("Filter error - most likely non int in page number")
             pass
         return a
-
 
 
 class FilterByMagicSep:
