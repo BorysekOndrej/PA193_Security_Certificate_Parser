@@ -231,9 +231,10 @@ class TableOfContentsParser(PropertyParserInterface):
         toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
         toc_lines_start_section_by_keyword = self.filter_lines_by_section_keyword(lines)
 
-        toc_lines_magic_sep = list(filter(lambda x: len(x) > 20, toc_lines_magic_sep))
-        toc_lines_num_wildcard_num = list(filter(lambda x: len(x) > 20, toc_lines_num_wildcard_num))
-        toc_lines_start_section_by_keyword = list(filter(lambda x: len(x) > 20, toc_lines_start_section_by_keyword))
+        min_line_length = 16
+        toc_lines_magic_sep = list(filter(lambda x: len(x) >= min_line_length, toc_lines_magic_sep))
+        toc_lines_num_wildcard_num = list(filter(lambda x: len(x) >= min_line_length, toc_lines_num_wildcard_num))
+        toc_lines_start_section_by_keyword = list(filter(lambda x: len(x) >= min_line_length, toc_lines_start_section_by_keyword))
 
         toc_lines = toc_lines_magic_sep
         if len(toc_lines) < len(toc_lines_num_wildcard_num):
