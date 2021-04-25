@@ -82,7 +82,7 @@ class TableOfContentsParser(PropertyParserInterface):
             try:
                 page_number_int = int(page_number_string)
             except ValueError as e:
-                logger.warning(f"Page number is not int: {page_number_string}")
+                # logger.warning(f"Page number is not int: {page_number_string}")
                 continue
                 pass
 
@@ -161,7 +161,8 @@ class TableOfContentsParser(PropertyParserInterface):
         try:
             return list(filter(lambda x: page_min <= int(x[2]) <= page_max, a))
         except ValueError as e:
-            logger.warning("Filter error - most likely non int in page number")
+            # logger.warning("Filter error - most likely non int in page number")
+            pass
         return a
 
 
@@ -188,7 +189,7 @@ class TableOfContentsParser(PropertyParserInterface):
             # logger.warning("This report has probably two columns")
             toc_lines = self.__decolumn_lines(toc_lines)
 
-        logger.debug(toc_lines)
+        # logger.debug(toc_lines)
 
         return toc_lines
 
@@ -197,7 +198,7 @@ class TableOfContentsParser(PropertyParserInterface):
         parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=True) )
         # parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=False) )
         parser_results.append( self.parser2(toc_lines) )
-        logger.debug(list(map(lambda x: len(x), parser_results)))
+        # logger.debug(list(map(lambda x: len(x), parser_results)))
 
         for single_result in parser_results:
             if len(single_result) > 0:
