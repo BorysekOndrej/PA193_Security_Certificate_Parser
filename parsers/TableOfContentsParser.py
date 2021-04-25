@@ -158,6 +158,33 @@ class Parser1:
         return answer2
 
 
+class Parser2:
+    @staticmethod
+    def parser2(lines: List[str]) -> List[Tuple[str, str, int]]:
+        answer = []
+
+        for line in lines:
+            try:
+                identificator, rest = line.split(" ", 1)
+                if identificator.isnumeric() or "." in identificator or len(identificator) < 3:
+                    pass
+                else:
+                    identificator = ""
+                    rest = line
+
+                name, page = rest.rsplit(" ", 1)
+                try:
+                    answer.append((identificator.strip(), name.strip(), int(page.strip())))
+                except ValueError as e:
+                    # logger.debug("Page is not int")
+                    answer.append((identificator.strip(), name.strip(), -1))
+                    pass
+            except ValueError as e:
+                # logger.debug("Split failed")
+                pass
+        return answer
+
+
 class DecolumnLines:
     @staticmethod
     def __two_column_format_align_check(line: str) -> Tuple[int, int, int]:
@@ -278,33 +305,6 @@ class FilterLinesBySectionKeyword:
             if not line_stripped[-1].isnumeric():
                 return line_id
         return -1
-
-
-class Parser2:
-    @staticmethod
-    def parser2(lines: List[str]) -> List[Tuple[str, str, int]]:
-        answer = []
-
-        for line in lines:
-            try:
-                identificator, rest = line.split(" ", 1)
-                if identificator.isnumeric() or "." in identificator or len(identificator) < 3:
-                    pass
-                else:
-                    identificator = ""
-                    rest = line
-
-                name, page = rest.rsplit(" ", 1)
-                try:
-                    answer.append((identificator.strip(), name.strip(), int(page.strip())))
-                except ValueError as e:
-                    # logger.debug("Page is not int")
-                    answer.append((identificator.strip(), name.strip(), -1))
-                    pass
-            except ValueError as e:
-                # logger.debug("Split failed")
-                pass
-        return answer
 
 
 class FilterLinesByNumWildcardNum:
