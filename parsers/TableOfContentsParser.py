@@ -15,14 +15,15 @@ class TableOfContentsParser(PropertyParserInterface):
         super().__init__(lines)
 
     def parse(self) -> List[Tuple[str, str, int]]:
-        toc_lines = self.preprocess(self.lines)
+        toc_lines = self.__preprocess_lines(self.lines)
         possible_results = self.__transform_lines_to_tuples(toc_lines)
         filtered_results = self.__post_action_data_cleanup(self.lines, possible_results)
         return filtered_results
 
-    def preprocess(self, lines: List[str]) -> List[str]:
+    @staticmethod
+    def __preprocess_lines(lines: List[str]) -> List[str]:
         toc_suspected_lines = {
-            "MAGIC_SEP": FilterByMagicSep.filter_by_magic_sep(lines, DOTS_SEP),
+            "MAGIC_SEP": list(filter(lambda x: DOTS_SEP in x, lines)),
             "NUM_BODY_NUM": FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, DOTS_SEP),
             "SECTION_KEYWORD": FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
         }
@@ -277,15 +278,6 @@ class FilterLinesBySectionKeyword:
             if not line_stripped[-1].isnumeric():
                 return line_id
         return -1
-
-
-class FilterByMagicSep:
-    """
-        This class does a simple thing: it just filters line based on the presence of some substring.
-    """
-    @staticmethod
-    def filter_by_magic_sep(lines: List[str], sep: str) -> List[str]:
-        return list(filter(lambda x: sep in x, lines))
 
 
 class Parser2:
