@@ -299,29 +299,6 @@ class FilterResultsByPageNumbers:
 
 
 
-class FilterChaptersDirectlyFromText:
-
-    @staticmethod
-    def filter_chapters_directly_from_text(lines: List[str]) -> List[str]:
-        # This approach is not viable, because it also extracts numerical lists
-        answer = []
-        for line in lines:
-            line_stripped = line.strip()
-            if len(line_stripped) == 0:
-                continue
-            if not line_stripped[0].isnumeric():
-                continue
-            if "." not in line_stripped:
-                continue
-            answer.append(line_stripped+"\n")
-
-        # random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
-        # with open(random_filename, "w", encoding="utf8") as f:
-        #     f.writelines(answer)
-
-        return answer
-
-
 class FilterByMagicSep:
     @staticmethod
     def filter_by_magic_sep(a: List[str], sep: str) -> List[str]:
@@ -432,4 +409,26 @@ if False:
                 before += 1
 
             return before, after
+
+
+    class FilterChaptersDirectlyFromText:
+        @staticmethod
+        def filter_chapters_directly_from_text(lines: List[str]) -> List[str]:
+            # This approach is not viable, because it also extracts numerical lists
+            answer = []
+            for line in lines:
+                line_stripped = line.strip()
+                if len(line_stripped) == 0:
+                    continue
+                if not line_stripped[0].isnumeric():
+                    continue
+                if "." not in line_stripped:
+                    continue
+                answer.append(line_stripped + "\n")
+
+            # random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
+            # with open(random_filename, "w", encoding="utf8") as f:
+            #     f.writelines(answer)
+
+            return answer
 
