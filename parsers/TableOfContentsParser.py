@@ -1,4 +1,6 @@
+import random
 import re
+import string
 from typing import List, Dict, Tuple
 from pprint import pprint
 from loguru import logger
@@ -165,14 +167,82 @@ class TableOfContentsParser(PropertyParserInterface):
             pass
         return a
 
+    def filter_lines_by_section_keyword(self, lines):
+        possible_starts = ["CONTENTS:", "TABLE OF CONTENTS"]
+
+        def get_toc_section_start(lines):
+            section_start = -1
+            answer = []
+            # max_possible_start_len = max(map(lambda x: len(x), possible_starts))
+            line_id = 0
+            for line in lines:
+                line_stripped = line.strip().lower()
+                # if len(line_stripped) > max_possible_start_len + 5:
+                #     continue
+                for single_start in possible_starts:
+                    # if line_stripped.startswith(single_start.lower()):
+                    if line_stripped.startswith(single_start.lower()):
+                        # logger.warning(line_stripped)
+                        section_start = line_id
+                        break
+                if section_start >= 0:
+                    break
+                line_id += 1
+            return section_start
+
+        def get_first_non_empty_non_numeric_ending_line_id(lines, start_line_id):
+            for line_id in range(start_line_id, len(lines)):
+                line_stripped = lines[line_id].strip().lower()
+                if sum(map(lambda x: x.lower() in line_stripped, possible_starts)):
+                    continue
+                if line_stripped == "contents":
+                    continue
+                if len(line_stripped) == 0:
+                    continue
+                if not line_stripped[-1].isnumeric():
+                    return line_id
+            return -1
+
+
+        section_start_line_id = get_toc_section_start(lines)
+        if section_start_line_id == -1:
+            return []
+        section_end_line_id = get_first_non_empty_non_numeric_ending_line_id(lines, section_start_line_id + 1)
+        if section_end_line_id == -1:
+            return []
+
+        random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
+        with open(random_filename+".raw.txt", "w", encoding="utf8") as f:
+            f.writelines(lines[section_start_line_id:section_start_line_id+100])
+
+        answer = list(filter(lambda x: len(x.strip()), lines[section_start_line_id+1:section_end_line_id]))
+        answer = list(filter(lambda x: x.strip()[-1].isnumeric(), answer))
+        answer = list(map(lambda x: x.strip(), answer))
+
+        with open(random_filename + ".guessed.txt", "w", encoding="utf8") as f:
+            f.writelines(answer)
+
+        logger.debug(random_filename)
+        return answer
+
 
     def preprocess(self, lines: List[str]) -> List[str]:
         toc_lines_magic_sep = self.__filter_by_magic_sep(lines, self.toc_page_num_sep)
         toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
+        toc_lines_start_section_by_keyword = self.filter_lines_by_section_keyword(lines)
 
         toc_lines = toc_lines_magic_sep
-        if len(toc_lines_magic_sep) < len(toc_lines_num_wildcard_num):
+        if len(toc_lines) < len(toc_lines_num_wildcard_num):
             toc_lines = toc_lines_num_wildcard_num
+        if len(toc_lines) < len(toc_lines_start_section_by_keyword):
+            logger.debug(toc_lines)
+            logger.debug(toc_lines_start_section_by_keyword)
+
+            logger.debug(
+                f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
+            toc_lines = toc_lines_start_section_by_keyword
+        # else:
+        #     return []
 
         toc_lines = list(filter(lambda x: " " in x, toc_lines))
 
@@ -194,6 +264,9 @@ class TableOfContentsParser(PropertyParserInterface):
         return toc_lines
 
     def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
+        if len(toc_lines) == 0:
+            return []
+
         parser_results = []
         parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=True) )
         # parser_results.append( self.parser1(toc_lines, self.toc_page_num_sep, require_sep=False) )
