@@ -43,31 +43,45 @@ class RevisionsParser(PropertyParserInterface):
     def extract_formatting_params(self, line: str) -> List[int]:
         """ Tries to extract start indexes for each column """
         # Split line by two or more spaces
-        columns = re.split(r" {2,}", line)
+        columns = [x for x in re.split("\s{2,}", line) if x]
         # We need to find index of each column in string.
         # As split does not give indexes, let's try to find by first occurence
         indexes = [line.find(column) for column in columns]
         return indexes
+
+    # TODO: maybe move to some utils class?
+    def most_frequent(self, List):
+        return max(set(List), key = List.count)
 
     def extract_two_column_table(self, lines: List[str]):
         """ Tries to extract two-column table """
         table_header_keywords = ['Date', 'Description', 'Rev', 'Revision', 'Version']
         table_header = []
         table_header_found = False
-        column1_start_ids = []
-        column2_start_ids = []
+        prev_line_format = []
         table = []
         # TODO: work more with false lines
         false_lines = 0
         final_lines = 0
         for line in lines:
             result = re.findall(self.twoColumns, line)
-            if false_lines > 5: return []
+            if false_lines > 4: return []
+            if final_lines > 1: break
             if len(table) > 0:
+                # Check the newline at the end
                 if line == '\n':
                     final_lines += 1
+                    continue
                 else:
                     final_lines = 0
+                # Adds line to the table if line is part of the previous
+                formatting = self.extract_formatting_params(line)
+                if len(formatting) == 1 and formatting[0] in prev_line_format:
+                    for i, col in enumerate(prev_line_format):
+                        if(formatting[0] == col):
+                            table[-1][i] += " " + line
+                            break
+                    continue
             if len(result) == 0:
                 false_lines += 1
                 continue
@@ -77,22 +91,28 @@ class RevisionsParser(PropertyParserInterface):
                 if len(columns) == 2:
                     table_header = columns
                     table_header_found = True
-                    # find start indexes of headers
-                    #ids = self.extract_formatting_params(line)
-                    #column1_start_ids.append(ids[0])
-                    #column2_start_ids.append(ids[1])
+                    # Table line cannot exist before header
+                    table = []
                 continue
 
-            table.append(line)
+            table.append(list(result[0]))
+            # Find start indexes
+            prev_line_format = self.extract_formatting_params(line)
+            false_lines = 0
+        return table
             
 
             
 
     def find_table(self, start: List[int], lines: List[str]):
+        
+        possible_tables = []
         for id in start:
             # We take next line after found keyword
             next_line = id + 1
-            self.extract_two_column_table(lines[next_line:])
+            table = self.extract_two_column_table(lines[next_line:])
+            if len(table) > 0:
+                possible_tables.append(table)
 
 
     def parse(self) -> List[dict]:
