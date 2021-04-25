@@ -1,5 +1,4 @@
 import random
-import re
 import string
 from typing import List, Dict, Tuple
 from pprint import pprint
@@ -15,18 +14,24 @@ class TableOfContentsParser(PropertyParserInterface):
         super().__init__(lines)
 
     def parse(self) -> List[Tuple[str, str, int]]:
-        toc_lines = self.__preprocess_lines(self.lines)
-        possible_results = self.__transform_lines_to_tuples(toc_lines)
-        filtered_results = self.__post_action_data_cleanup(self.lines, possible_results)
-        return filtered_results
+        try:
+            toc_lines = self.__preprocess_lines(self.lines)
+            possible_results = self.__transform_lines_to_tuples(toc_lines)
+            filtered_results = self.__post_action_data_cleanup(self.lines, possible_results)
+            return filtered_results
+        except Exception as e:
+            logger.error(f"Uncaught exception from depths of ToC parse. Returning empty ToC. (exception: {e}")
+        return []
 
     @staticmethod
     def __preprocess_lines(lines: List[str]) -> List[str]:
-        toc_suspected_lines = {
-            "MAGIC_SEP": list(filter(lambda x: DOTS_SEP in x, lines)),
-            "NUM_BODY_NUM": FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines, DOTS_SEP),
-            "SECTION_KEYWORD": FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
-        }
+        toc_suspected_lines = {}
+        try:
+            toc_suspected_lines["MAGIC_SEP"] = list(filter(lambda x: DOTS_SEP in x, lines))
+            toc_suspected_lines["NUM_BODY_NUM"] = FilterLinesByNumWildcardNum.filter_lines_by_num_wildcard_num(lines)
+            toc_suspected_lines["SECTION_KEYWORD"] = FilterLinesBySectionKeyword.filter_lines_by_section_keyword(lines)
+        except Exception as e:
+            logger.error(f"Exception inside line preprocessing. Trying to continue with results from other methods. (exception: {e}")
 
         min_line_length = 16
         for key in toc_suspected_lines:
@@ -48,14 +53,17 @@ class TableOfContentsParser(PropertyParserInterface):
             logger.warning(f"Zero ToC lines find after trying all line filter approaches")
             return []
 
-        logger.debug(used_approach)
+        # logger.debug(used_approach)
 
         # The following line does not improve the results, but does improve the readability of the intermediate results.
         for i in range(30):
             toc_lines = list(map(lambda x: x.replace(DOTS_SEP + "."*5, DOTS_SEP), toc_lines))  # This is just a way to replace it quicker
             toc_lines = list(map(lambda x: x.replace(DOTS_SEP + ".", DOTS_SEP), toc_lines))
 
-        toc_lines = DecolumnLines.decolumn_lines(toc_lines)
+        try:
+            toc_lines = DecolumnLines.decolumn_lines(toc_lines)
+        except Exception as e:
+            logger.error(f"Exception de-column proccess. Trying to continue without the result from it. (exception: {e}")
         # logger.debug(toc_lines)
 
         toc_lines = list(map(lambda x: x.strip(), toc_lines))  # Remove all whitechars from components
@@ -69,10 +77,18 @@ class TableOfContentsParser(PropertyParserInterface):
             return []
 
         # The parsers here should be ordered by DESC confidence.
-        parser_results = [
-            Parser1.parser1(toc_lines, DOTS_SEP, require_sep=True),
-            Parser2.parser2(toc_lines)
-        ]
+        parser_results = []
+
+        try:
+            parser_results.append(Parser1.parser1(toc_lines, DOTS_SEP, require_sep=True))
+        except Exception as e:
+            logger.error(f"Exception from parser1. Trying to continue without the result from it. (exception: {e}")
+
+        try:
+            parser_results.append(Parser2.parser2(toc_lines))
+        except Exception as e:
+            logger.error(f"Exception from parser2. Trying to continue without the result from it. (exception: {e}")
+
         # logger.debug(list(map(lambda x: len(x), parser_results)))
 
         for single_result in parser_results:
@@ -303,7 +319,8 @@ class FilterLinesBySectionKeyword:
 
 class FilterLinesByNumWildcardNum:
     @staticmethod
-    def filter_lines_by_num_wildcard_num(lines: List[str], sep: str) -> List[str]:
+    def filter_lines_by_num_wildcard_num(lines: List[str]) -> List[str]:
+        sep = DOTS_SEP
         new_lines = []
         for line in lines:
             new_line = line.strip()
