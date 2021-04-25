@@ -114,6 +114,12 @@ class TableOfContentsParser(PropertyParserInterface):
         for line in lines:
             try:
                 identificator, rest = line.split(" ", 1)
+                if identificator.isnumeric() or "." in identificator or len(identificator) < 3:
+                    pass
+                else:
+                    identificator = ""
+                    rest = line
+
                 name, page = rest.rsplit(" ", 1)
                 try:
                     answer.append((identificator.strip(), name.strip(), int(page.strip())))
