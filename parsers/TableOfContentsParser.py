@@ -215,8 +215,15 @@ def get_page_count(lines: List[str]) -> int:
     return sum(map(lambda x: get_page_break_char() in x, lines))
 
 
+
 class RemoveHeadersAndFooters:
-    def remove_header_and_footer(self, lines: List[str]) -> List[str]:
+    """
+        This class was a test to check whether or not we could safely remove the headers and footers of pages.
+        Footers seemed to be mostly fine, but headers were a problem - in some cases there were no headers and it's not easy to detect that.
+        The headers are not always static, so even checking against previous headers wouldn't help. This was abandoned.
+    """
+    @staticmethod
+    def remove_header_and_footer(lines: List[str]) -> List[str]:
         page_breaks = []
         page_break_char = get_page_break_char()
 
@@ -226,7 +233,7 @@ class RemoveHeadersAndFooters:
 
         footer_and_header_ofsets = []
         for i in range(len(page_breaks)-1):
-            footer_and_header_ofsets.append(self.__count_non_empty_lines_before_and_after(lines, page_breaks[i]))
+            footer_and_header_ofsets.append(RemoveHeadersAndFooters.__count_non_empty_lines_before_and_after(lines, page_breaks[i]))
         footer_offset_min = min(map(lambda x: x[0], footer_and_header_ofsets))
         # header_offset_min = min(map(lambda x: x[1], footer_and_header_ofsets))
         header_offset_min = 0
