@@ -212,12 +212,11 @@ class DecolumnLines:
 
     @staticmethod
     def decolumn_lines(lines: List[str]) -> List[str]:
-        new_lines = []
-
         if not DecolumnLines.__check_for_two_columns(lines):
             return lines
 
-        # logger.debug("Possible two columns detected. Splitting the line")
+        # logger.debug("Possible two columns detected. Splitting the lines")
+        new_lines = []
 
         for line in lines:
             dots1, space1, dots2 = DecolumnLines.__two_column_format_align_check(line)
