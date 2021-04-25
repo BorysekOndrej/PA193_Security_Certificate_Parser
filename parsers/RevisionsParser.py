@@ -116,7 +116,7 @@ class RevisionsParser(PropertyParserInterface):
         for id in start:
             # We take next line after found keyword
             next_line = id + 1
-            for i in range(2, 4):
+            for i in range(2, 5):
                 pattern = re.compile(self.columnsPattern % (i - 1))
                 table = self.extract_table(lines[next_line:], i, pattern)
                 if len(table) > 0:
