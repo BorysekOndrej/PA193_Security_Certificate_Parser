@@ -314,13 +314,19 @@ class TableOfContentsParser(PropertyParserInterface):
         toc_lines_start_section_by_keyword = list(filter(lambda x: len(x) >= min_line_length, toc_lines_start_section_by_keyword))
 
         toc_lines = toc_lines_magic_sep
+        used_approach = "MAGIC_SEP"
+
         if len(toc_lines) < len(toc_lines_num_wildcard_num):
+            used_approach = "NUM WILDCARD"
             toc_lines = toc_lines_num_wildcard_num
 
         if len(toc_lines) < len(toc_lines_start_section_by_keyword):
-            logger.debug(toc_lines)
-            logger.debug(toc_lines_start_section_by_keyword)
+            used_approach = "KEYWORD"
+            # logger.debug(toc_lines)
+            # logger.debug(toc_lines_start_section_by_keyword)
             toc_lines = toc_lines_start_section_by_keyword
+
+        logger.error(used_approach)
 
         # logger.debug(
         #     f"ToC line lengths {len(toc_lines_magic_sep)} {len(toc_lines_num_wildcard_num)} {len(toc_lines_start_section_by_keyword)}")
