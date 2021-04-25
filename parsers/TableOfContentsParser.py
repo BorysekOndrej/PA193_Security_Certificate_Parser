@@ -103,6 +103,10 @@ class TableOfContentsParser(PropertyParserInterface):
 
         filtered_results = sorted(filtered_results, key=lambda x: x[2])  # Sort by page. Sorted is guaranteed to be stable.
 
+        # Remove multiple spaces
+        for i in range(30):
+            filtered_results = list(map(lambda x: (x[0], x[1].replace("  ", " "), x[2]), filtered_results))
+
         return filtered_results
 
 
