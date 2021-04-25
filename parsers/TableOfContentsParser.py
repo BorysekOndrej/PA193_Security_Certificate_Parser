@@ -127,7 +127,7 @@ class TableOfContentsParser(PropertyParserInterface):
                     answer.append((identificator.strip(), name.strip(), int(page.strip())))
                 except ValueError as e:
                     # logger.debug("Page is not int")
-                    answer.append((identificator.strip(), name.strip(), page.strip()))
+                    answer.append((identificator.strip(), name.strip(), -1))
                     pass
             except ValueError as e:
                 # logger.debug("Split failed")
@@ -287,6 +287,7 @@ class TableOfContentsParser(PropertyParserInterface):
         filtered_results = list(filter(lambda x: not x[0].startswith("Fig. "), filtered_results))
         # filtered_results = list(filter(lambda x: x[0][0].isnumeric(), filtered_results)) # We also want thing labeled with letters.
         filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results)) # Remove trailing dot from chapter identifiers
+        filtered_results = sorted(filtered_results, key=lambda x: x[2]) # Sort by page. Sorted is guaranteed to be stable.
 
         return filtered_results
 
