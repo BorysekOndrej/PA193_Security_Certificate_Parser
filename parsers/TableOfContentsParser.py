@@ -112,8 +112,9 @@ class TableOfContentsParser(PropertyParserInterface):
 
 class Parser1:
     """
-        This parser to tries to take every line and check, whether it's in format:
-            (leading whitespace)number anything number(trailing whitespace)
+        This parser to tries to take every line and check, whether it's in one of the following formats format:
+            (leading whitespace)anything  anything number(trailing whitespace)
+            (leading whitespace)anything. anything number(trailing whitespace)
         If both the first number and the last number is correctly parsed, it's added to the result.
 
         It also has the option to split not on space, but also on custom separator.
@@ -128,7 +129,8 @@ class Parser1:
             # logger.warning(single_line)
             if require_sep and sep not in single_line:
                 continue
-            c = single_line.replace(sep, " ").rsplit(" ", 1)
+            c = single_line.replace(sep, " ")
+            c = c.rsplit(" ", 1)
             c = list(map(lambda x: x.strip(), c))  # Remove all whitechars from components
             c = list(filter(lambda x: len(x), c))  # Keep only components with non zero length
 
