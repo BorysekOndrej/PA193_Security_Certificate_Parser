@@ -16,7 +16,7 @@ class TableOfContentsParser(PropertyParserInterface):
 
     def parse(self) -> List[Tuple[str, str, int]]:
         toc_lines = self.preprocess(self.lines)
-        possible_results = self.main_parse(toc_lines)
+        possible_results = self.__transform_lines_to_tuples(toc_lines)
         filtered_results = self.post_filters_and_maps(possible_results)
         return filtered_results
 
@@ -59,22 +59,23 @@ class TableOfContentsParser(PropertyParserInterface):
 
         return toc_lines
 
-    def main_parse(self, toc_lines: List[str]) -> List[Tuple[str, str, int]]:
+    @staticmethod
+    def __transform_lines_to_tuples(toc_lines: List[str]) -> List[Tuple[str, str, int]]:
         if len(toc_lines) == 0:
             return []
 
-        parser_results = []
-        parser_results.append( Parser1.parser1(toc_lines, DOTS_SEP, require_sep=True) )
-        # parser_results.append( self.parser1(toc_lines, DOTS_SEP, require_sep=False) )
-        parser_results.append( Parser2.parser2(toc_lines) )
+        # The parsers here should be ordered by DESC confidence.
+        parser_results = [
+            Parser1.parser1(toc_lines, DOTS_SEP, require_sep=True),
+            Parser2.parser2(toc_lines)
+        ]
         # logger.debug(list(map(lambda x: len(x), parser_results)))
 
         for single_result in parser_results:
-            if len(single_result) > 0:
+            if len(single_result) > 3:
                 return single_result
 
         logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
-        # logger.debug(toc_lines)
         return []
 
     def post_filters_and_maps(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
