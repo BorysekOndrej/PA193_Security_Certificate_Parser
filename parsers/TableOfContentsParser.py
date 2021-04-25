@@ -150,9 +150,12 @@ class TableOfContentsParser(PropertyParserInterface):
 
         return new_lines
 
+    @staticmethod
+    def get_page_break_char():
+        return ""
+
     def get_page_count(self) -> int:
-        page_break_char = ""
-        return sum(map(lambda x: page_break_char in x, self.lines))
+        return sum(map(lambda x: self.get_page_break_char() in x, self.lines))
 
     def filter_results_by_page_numbers(self, a: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
         page_min = 1
