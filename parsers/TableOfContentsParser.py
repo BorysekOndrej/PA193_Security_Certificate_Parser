@@ -7,7 +7,7 @@ from loguru import logger
 
 from PropertyParserInterface import PropertyParserInterface
 
-DOTS_SEP = "....."  # todo: This has to match the internal attribute of the class
+DOTS_SEP = "....."
 
 
 class TableOfContentsParser(PropertyParserInterface):
@@ -17,7 +17,7 @@ class TableOfContentsParser(PropertyParserInterface):
     def parse(self) -> List[Tuple[str, str, int]]:
         toc_lines = self.preprocess(self.lines)
         possible_results = self.__transform_lines_to_tuples(toc_lines)
-        filtered_results = self.post_filters_and_maps(possible_results)
+        filtered_results = self.__post_action_data_cleanup(self.lines, possible_results)
         return filtered_results
 
     def preprocess(self, lines: List[str]) -> List[str]:
@@ -78,12 +78,20 @@ class TableOfContentsParser(PropertyParserInterface):
         logger.warning(f"No ToC tuples extracted from {len(toc_lines)} suspected ToC lines")
         return []
 
-    def post_filters_and_maps(self, possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
-        filtered_results = FilterResultsByPageNumbers.filter_results_by_page_numbers(self.lines, possible_results)
+    @staticmethod
+    def __post_action_data_cleanup(all_lines: List[str], possible_results: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
+        if len(possible_results) == 0:
+            return []
+
+        filtered_results = possible_results
+
+        page_max = get_page_count(all_lines) + 1
+        filtered_results = list(filter(lambda x: 1 <= x[2] <= page_max, filtered_results))
         filtered_results = list(filter(lambda x: not x[0].startswith("Tab. "), filtered_results))
         filtered_results = list(filter(lambda x: not x[0].startswith("Fig. "), filtered_results))
-        # filtered_results = list(filter(lambda x: x[0][0].isnumeric(), filtered_results))  # We also want thing labeled with letters.
+        # filtered_results = list(filter(lambda x: x[0].isnumeric(), filtered_results))  # We also want things labeled with letters.
         filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results))  # Remove trailing dot from chapter identifiers
+
         filtered_results = sorted(filtered_results, key=lambda x: x[2])  # Sort by page. Sorted is guaranteed to be stable.
 
         return filtered_results
@@ -269,22 +277,6 @@ class FilterLinesBySectionKeyword:
             if not line_stripped[-1].isnumeric():
                 return line_id
         return -1
-
-
-class FilterResultsByPageNumbers:
-    @staticmethod
-    def filter_results_by_page_numbers(lines: List[str], a: List[Tuple[str, str, int]]) -> List[Tuple[str, str, int]]:
-        page_min = 1
-        page_max = get_page_count(lines) + 1
-
-        # loguru.debug(page_max)
-
-        try:
-            return list(filter(lambda x: page_min <= int(x[2]) <= page_max, a))
-        except ValueError as e:
-            # logger.warning("Filter error - most likely non int in page number")
-            pass
-        return a
 
 
 class FilterByMagicSep:
