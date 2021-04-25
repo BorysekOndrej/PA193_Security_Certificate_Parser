@@ -14,6 +14,12 @@ class TableOfContentsParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
         super().__init__(lines)
 
+    def parse(self) -> List[Tuple[str, str, int]]:
+        toc_lines = self.preprocess(self.lines)
+        possible_results = self.main_parse(toc_lines)
+        filtered_results = self.post_filters_and_maps(possible_results)
+        return filtered_results
+
     def preprocess(self, lines: List[str]) -> List[str]:
         toc_suspected_lines = {
             "MAGIC_SEP": FilterByMagicSep.filter_by_magic_sep(lines, DOTS_SEP),
@@ -79,12 +85,6 @@ class TableOfContentsParser(PropertyParserInterface):
         filtered_results = list(map(lambda x: (x[0].rstrip("."), x[1], x[2]), filtered_results))  # Remove trailing dot from chapter identifiers
         filtered_results = sorted(filtered_results, key=lambda x: x[2])  # Sort by page. Sorted is guaranteed to be stable.
 
-        return filtered_results
-
-    def parse(self) -> List[Tuple[str, str, int]]:
-        toc_lines = self.preprocess(self.lines)
-        possible_results = self.main_parse(toc_lines)
-        filtered_results = self.post_filters_and_maps(possible_results)
         return filtered_results
 
 
