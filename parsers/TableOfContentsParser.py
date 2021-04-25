@@ -165,6 +165,11 @@ class Parser1:
 
 
 class Parser2:
+    """
+        anything anything number
+
+        This is slightly more general than parser1, but that also means it has a lot more FPs.
+    """
     @staticmethod
     def parser2(lines: List[str]) -> List[Tuple[str, str, int]]:
         answer = []
@@ -179,14 +184,9 @@ class Parser2:
                     rest = line
 
                 name, page = rest.rsplit(" ", 1)
-                try:
-                    answer.append((identificator.strip(), name.strip(), int(page.strip())))
-                except ValueError as e:
-                    # logger.debug("Page is not int")
-                    answer.append((identificator.strip(), name.strip(), -1))
-                    pass
-            except ValueError as e:
-                # logger.debug("Split failed")
+                answer.append((identificator.strip(), name.strip(), int(page.strip())))
+
+            except ValueError as _:
                 pass
         return answer
 
