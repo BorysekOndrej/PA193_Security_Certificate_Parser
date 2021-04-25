@@ -150,8 +150,9 @@ class Parser1:
                     index_part, name_part = split2[0].strip(), split2[1].strip()
 
             # This cleans up the result, but slightly lowers the overall score.
-            # if index_part == name_part:
-            #     continue
+            if index_part == name_part:
+                index_part = ""
+                pass
 
             answer2.append((index_part, name_part, page_number_int))
 
