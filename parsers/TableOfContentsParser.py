@@ -215,6 +215,10 @@ class TableOfContentsParser(PropertyParserInterface):
             return []
 
         # random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
+        # with open(random_filename+".removed_headers_and_footers.txt", "w", encoding="utf8") as f:
+        #     f.writelines(self.remove_header_and_footer(lines))
+
+
         # with open(random_filename+".raw.txt", "w", encoding="utf8") as f:
         #     f.writelines(lines[section_start_line_id:section_start_line_id+100])
 
@@ -228,8 +232,57 @@ class TableOfContentsParser(PropertyParserInterface):
         # logger.debug(random_filename)
         return answer
 
+    def remove_header_and_footer(self, lines: List[str]) -> List[str]:
+
+        def count_non_empty_lines_before_and_after(lines: List[str], line_index: int) -> Tuple[int, int]:
+            before = 0
+            after = 0
+            for i in range(line_index, len(lines)):
+                if len(lines[i].strip()) == 0:
+                    break
+                after += 1
+            for i in range(line_index, 0, -1):
+                if len(lines[i].strip()) == 0:
+                    break
+                before += 1
+
+            return before, after
+
+        page_breaks = []
+        page_break_char = self.get_page_break_char()
+
+        for i in range(len(lines)):
+            if page_break_char in lines[i]:
+                page_breaks.append(i)
+
+        footer_and_header_ofsets = []
+        for i in range(len(page_breaks)-1):
+            footer_and_header_ofsets.append(count_non_empty_lines_before_and_after(lines, page_breaks[i]))
+        footer_offset_min = min(map(lambda x: x[0], footer_and_header_ofsets))
+        # header_offset_min = min(map(lambda x: x[1], footer_and_header_ofsets))
+        header_offset_min = 0
+
+        if footer_offset_min > 5:
+            footer_offset_min = 0
+
+        # logger.debug((footer_offset_min, header_offset_min))
+
+        cur_row = 0
+        answer = []
+        for i in range(len(page_breaks) - 1):
+            answer += lines[cur_row:max(0, page_breaks[i]-footer_offset_min)]
+            cur_row = min(len(lines), page_breaks[i]+header_offset_min)
+
+        answer += lines[cur_row:len(lines)]
+        # logger.debug(page_breaks)
+
+        return answer
+
 
     def preprocess(self, lines: List[str]) -> List[str]:
+
+        # lines = self.remove_header_and_footer(lines)
+
         toc_lines_magic_sep = self.__filter_by_magic_sep(lines, self.toc_page_num_sep)
         toc_lines_num_wildcard_num = self.filter_lines_by_num_wildcard_num(lines, self.toc_page_num_sep)
         toc_lines_start_section_by_keyword = self.filter_lines_by_section_keyword(lines)
