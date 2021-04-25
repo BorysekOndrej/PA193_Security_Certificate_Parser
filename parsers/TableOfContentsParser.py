@@ -196,10 +196,10 @@ class DecolumnLines:
         return dots1, space1, dots2
 
     @staticmethod
-    def __check_for_two_columns(a: List[str]) -> bool:
+    def __check_for_two_columns(lines: List[str]) -> bool:
         suspected_two_columns = 0
 
-        for line in a:
+        for line in lines:
             dots1, space1, dots2 = DecolumnLines.__two_column_format_align_check(line)
             if dots1 == -1 or space1 == -1 or dots2 == -1:
                 continue
