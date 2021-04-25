@@ -212,15 +212,15 @@ class TableOfContentsParser(PropertyParserInterface):
             return []
 
         random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
-        with open(random_filename+".raw.txt", "w", encoding="utf8") as f:
-            f.writelines(lines[section_start_line_id:section_start_line_id+100])
+        # with open(random_filename+".raw.txt", "w", encoding="utf8") as f:
+        #     f.writelines(lines[section_start_line_id:section_start_line_id+100])
 
         answer = list(filter(lambda x: len(x.strip()), lines[section_start_line_id+1:section_end_line_id]))
         answer = list(filter(lambda x: x.strip()[-1].isnumeric(), answer))
         answer = list(map(lambda x: x.strip(), answer))
 
-        with open(random_filename + ".guessed.txt", "w", encoding="utf8") as f:
-            f.writelines(answer)
+        # with open(random_filename + ".guessed.txt", "w", encoding="utf8") as f:
+        #     f.writelines(answer)
 
         logger.debug(random_filename)
         return answer
