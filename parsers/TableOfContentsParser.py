@@ -248,6 +248,7 @@ class FilterLinesBySectionKeyword:
         # logger.debug(random_filename)
         return answer
 
+    @staticmethod
     def get_toc_section_start(lines):
         section_start = -1
         answer = []
@@ -268,6 +269,7 @@ class FilterLinesBySectionKeyword:
             line_id += 1
         return section_start
 
+    @staticmethod
     def get_first_non_empty_non_numeric_ending_line_id(lines, start_line_id):
         for line_id in range(start_line_id, len(lines)):
             line_stripped = lines[line_id].strip().lower()
