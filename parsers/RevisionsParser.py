@@ -12,7 +12,8 @@ class RevisionsParser(PropertyParserInterface):
         self.datePattern = re.compile(r"^[0-9]{2,4}[\/\-\.]([0-9]{2}|[A-Za-z]+)[\/\-\.][0-9]{2,4}$")
         # Pattern to detect possible two columns in one line. Parametrized to use for 2-4 columns.
         self.columnsPattern = "^[ ]{0,5}((?:\S+(?:(?!\s{2}).)+)(?:[ ]{3,}(?:\S+(?:(?!\s{2}).)+)){%d})$"
-        self.versionPattern = re.compile(r"[0-9]+[\.][0-9]+")
+        self.versionDetectionPattern = re.compile(r"[a-zA-Z\.]{0,10}[0-9]+[\.][0-9]+$")
+        self.versionPattern = re.compile(r"([0-9]+[\.][0-9]+)")
 
     def find_keywords(self, lines: List[str], keywords: List[str]) -> list:
         subs = [string.lower() for string in keywords]
@@ -126,10 +127,69 @@ class RevisionsParser(PropertyParserInterface):
             best_table = max(possible_tables, key=len)
         return best_table
 
+    def process_ver(self, input: str) -> str:
+        res = re.findall(self.versionPattern, input)
+        if len(res) == 0:
+            res = ""
+        return res[0]
+
+    def process_desc(self, input: str) -> str:
+        return " ".join(input.split())
+
+    # NOT WORKING NOW
+    def postprocess(self, table: pd.DataFrame) -> List[dict]:
+        """ Remove unwanted spaces and symbols from the revision table """
+        # TODO: add table and header emptiness check
+        allowed_cols = ['version', 'date', 'description']
+        ver_kwords = ['Version', 'Revision', 'Rev']
+        date_kwords = ['Date']
+
+        # Here we try to detect types of data
+        # col_names = list(table.columns)
+        # for i, c in enumerate(col_names):
+        #     col_names[i] = c.replace('\n', '')
+        # with_alpha_header = all(char.isalpha() or char.isspace() for e in col_names for char in e)
+        # if with_alpha_header:
+        #     ver_kwords = [x.lower() for x in ver_kwords]
+        #     date_kwords = [x.lower() for x in date_kwords]
+        #     for i, c in enumerate(col_names):
+        #         if any(key in c.lower() for key in ver_kwords):
+        #             col_names[i] = 'version'
+        #         if any(key in c.lower() for key in date_kwords):
+        #             col_names[i] = 'date'
+        #     # The last column is always a description        
+        #     col_names[-1] = 'description'
+        
+        #TODO: add detection from data
+
+        for col in list(table.columns):
+            date_score = ver_score = other_score = 0
+            for i in range(len(table)):
+                val = table[col].iloc[i]
+                date_match = re.findall(self.datePattern, val)
+                if len(date_match) > 0:
+                    date_score += 1
+                ver_match = re.findall(self.versionDetectionPattern, "".join(val.split()))
+                if len(ver_match) > 0:
+                    ver_score += 1
+            if ver_score > date_score:
+                table.rename(columns={col : 'version'}, inplace=True)
+            if date_score > ver_score:
+                table.rename(columns={col : 'date'}, inplace=True)
+        table.columns = [*table.columns[:-1], 'description']
+        # remove unused columns
+        table = table[table.columns.intersection(allowed_cols)]
+        # postprocess data
+        table['version'] = table['version'].map(self.process_ver)
+        table['description'] = table['description'].map(self.process_desc)
+        return table
 
 
     def parse(self) -> List[dict]:
         keywords = ['Revision History', 'Version Control']
         indexes = self.find_keywords(self.lines, keywords)
         table = self.find_table(indexes, self.lines)
+        if len(table) > 0:
+            table = self.postprocess(table)
+        #print(table)
         return []
