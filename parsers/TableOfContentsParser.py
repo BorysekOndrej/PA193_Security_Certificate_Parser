@@ -360,9 +360,9 @@ class FilterChaptersDirectlyFromText:
                 continue
             answer.append(line_stripped+"\n")
 
-        random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
-        with open(random_filename, "w", encoding="utf8") as f:
-            f.writelines(answer)
+        # random_filename = f"results/tmp/" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10)) + ".txt"
+        # with open(random_filename, "w", encoding="utf8") as f:
+        #     f.writelines(answer)
 
         return answer
 
