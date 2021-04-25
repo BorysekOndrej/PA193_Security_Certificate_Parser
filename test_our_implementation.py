@@ -56,7 +56,13 @@ def statistics(raw_results: dict) -> dict:
     return answer_avg, answer_max
 
 
+def normalize_expected_jsons():
+    for input_filename in utils.list_input_files():
+        utils.normalize_json_file(utils.input_filename_to_expected_output_filename(input_filename))
+
+
 def main():
+    # normalize_expected_jsons()
     utils.mkdir(OUTPUT_FOLDER)
     raw_results = score_all_json_files()
     stats_avg, stats_max = statistics(raw_results)

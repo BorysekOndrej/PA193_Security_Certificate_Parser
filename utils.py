@@ -45,6 +45,12 @@ def load_file_json(input_filename: str) -> dict:
         return json.load(f)
 
 
+def normalize_json_file(input_filename: str):
+    data = load_file_json(input_filename)
+    with open(input_filename, "w", encoding="utf8") as f:
+        f.write(json.dumps(data, sort_keys=True, indent=4))
+
+
 def main():
     example_of_names()
     pass
