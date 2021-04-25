@@ -113,8 +113,8 @@ class TableOfContentsParser(PropertyParserInterface):
 class Parser1:
     """
         This parser to tries to take every line and check, whether it's in one of the following formats format:
-            (leading whitespace)anything  anything number(trailing whitespace)
-            (leading whitespace)anything. anything number(trailing whitespace)
+            anything  anything number
+            anything. anything number
         If both the first number and the last number is correctly parsed, it's added to the result.
 
         It also has the option to split not on space, but also on custom separator.
