@@ -15,7 +15,13 @@ cd PA193_Security_Certificate_Parser
 git submodule init
 git submodule update
 
-python3 ParseDocument.py
+# For a single file:
+python3 cli.py -i "dataset/dataset/NSCIB-CC-0095534-STLite.txt" -o "results/jsons/NSCIB-CC-0095534-STLite.json" --correct_file "dataset/dataset/NSCIB-CC-0095534-STLite.json"
+
+# For a whole folder:
+python3 cli.py -I "dataset/dataset/" -O "results/jsons/" --correct_folder "dataset/dataset/"
+
+
 ```
 
 
