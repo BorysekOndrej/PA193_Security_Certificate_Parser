@@ -37,7 +37,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Test for stats
-      run: python3 ParseDocument.py > test_stats_${{matrix.python-version}}.txt
+      run: python3 cli.py -I "dataset/dataset/" -O "results/jsons/" --correct_folder "dataset/dataset/" > test_stats_${{matrix.python-version}}.txt
 
     - name: Upload Unit Test Results
       if: always()
