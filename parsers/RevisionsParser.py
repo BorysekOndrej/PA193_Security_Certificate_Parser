@@ -1,5 +1,6 @@
 import re
 from typing import List, Dict, Tuple
+from loguru import logger
 import pandas as pd
 
 from PropertyParserInterface import PropertyParserInterface
@@ -18,19 +19,16 @@ class RevisionsParser(PropertyParserInterface):
     def find_keywords(self, lines: List[str], keywords: List[str]) -> list:
         subs = [string.lower() for string in keywords]
         # Find line indexes where the substring is
-        start_idxs = [i for i, line in enumerate(lines) if any(map(line.lower().__contains__, subs))]
+        start_idxs = [i - 1 for i, line in enumerate(lines) if any(map(line.lower().__contains__, subs))]
         return start_idxs
 
-#TODO: fix syntax, add return types
-    def get_date(self, line: str):
-        res = [m for m in re.finditer(self.datePattern, line)]
-        # Usually string should contain only one date
-        # TODO: add support for no date.
-        if len(res) > 0:
-            index = res[0].start(0)
-            date_str = res[0].group(0)
-            return date_str, index
-        return "", -1
+    def find_by_pattern(self, lines: List[str]) -> list:
+        out = []
+        for i in range(2, 4):
+            pattern = re.compile(self.columnsPattern % (i - 1))
+            start_idxs = [i for i, line in enumerate(lines) if len(re.findall(pattern, line)) > 0]
+            out.extend(start_idxs)
+        return out
 
     def is_table_header(self, string: str, keywords: List[str]):
         """ Check line if it can be a table header """
@@ -54,7 +52,6 @@ class RevisionsParser(PropertyParserInterface):
         indexes = [line.find(column) for column in columns]
         return indexes
 
-    # TODO: maybe move to some utils class?
     def most_frequent(self, List):
         return max(set(List), key = List.count)
 
@@ -118,7 +115,13 @@ class RevisionsParser(PropertyParserInterface):
             next_line = id + 1
             for i in range(2, 5):
                 pattern = re.compile(self.columnsPattern % (i - 1))
-                table = self.extract_table(lines[next_line:], i, pattern)
+                table = []
+                try:
+                    table = self.extract_table(lines[next_line:], i, pattern)
+                    table = self.postprocess(table)
+                except Exception as e:
+                    logger.error(f"Parsing table failed. Skipping this one. (exception: {e})")
+                    table = []
                 if len(table) > 0:
                     possible_tables.append(table)
         # TODO: include table score to select better
@@ -128,40 +131,28 @@ class RevisionsParser(PropertyParserInterface):
         return best_table
 
     def process_ver(self, input: str) -> str:
+        """ Extract version from string """
         res = re.findall(self.versionPattern, input)
         if len(res) == 0:
-            res = ""
+            return ''
         return res[0]
 
     def process_desc(self, input: str) -> str:
+        """ Format description nicely """
         return " ".join(input.split())
 
-    # NOT WORKING NOW
-    def postprocess(self, table: pd.DataFrame) -> List[dict]:
-        """ Remove unwanted spaces and symbols from the revision table """
-        # TODO: add table and header emptiness check
+    def postprocess(self, table: pd.DataFrame) -> pd.DataFrame:
+        """ Find data types of columns. If found correctly 
+        remove unwanted spaces and symbols from the revision table """
+        
         allowed_cols = ['version', 'date', 'description']
         ver_kwords = ['Version', 'Revision', 'Rev']
         date_kwords = ['Date']
 
-        # Here we try to detect types of data
-        # col_names = list(table.columns)
-        # for i, c in enumerate(col_names):
-        #     col_names[i] = c.replace('\n', '')
-        # with_alpha_header = all(char.isalpha() or char.isspace() for e in col_names for char in e)
-        # if with_alpha_header:
-        #     ver_kwords = [x.lower() for x in ver_kwords]
-        #     date_kwords = [x.lower() for x in date_kwords]
-        #     for i, c in enumerate(col_names):
-        #         if any(key in c.lower() for key in ver_kwords):
-        #             col_names[i] = 'version'
-        #         if any(key in c.lower() for key in date_kwords):
-        #             col_names[i] = 'date'
-        #     # The last column is always a description        
-        #     col_names[-1] = 'description'
-        
-        #TODO: add detection from data
+        if len(table) == 0:
+            return []
 
+        # Try to extract data types from columns based on score
         for col in list(table.columns):
             date_score = ver_score = other_score = 0
             for i in range(len(table)):
@@ -176,15 +167,22 @@ class RevisionsParser(PropertyParserInterface):
                 table.rename(columns={col : 'version'}, inplace=True)
             if date_score > ver_score:
                 table.rename(columns={col : 'date'}, inplace=True)
+        # Description is always the last
         table.columns = [*table.columns[:-1], 'description']
         # remove unused columns
         table = table[table.columns.intersection(allowed_cols)]
-        # postprocess data
+        # Postprocess data
+        # If version and description columns were not detected, this table is bad
+        if not ('version' in table and 'description' in table):
+            return []
+        # Clean-up of values
         table['version'] = table['version'].map(self.process_ver)
         table['description'] = table['description'].map(self.process_desc)
         return table
 
     def dataframe_to_dict(self, table: pd.DataFrame) -> List[dict]:
+        """ Convert dataframe to dictionary. Accepts only columns named
+            'version', 'date' and 'description' """
         out = []
         for i, row in table.iterrows():
             revision_item = dict()
@@ -205,8 +203,5 @@ class RevisionsParser(PropertyParserInterface):
         indexes = self.find_keywords(self.lines, keywords)
         table = self.find_table(indexes, self.lines)
         if len(table) > 0:
-            table = self.postprocess(table)
             return self.dataframe_to_dict(table)
-        #print(table)
-        
         return []
