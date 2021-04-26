@@ -12,6 +12,9 @@ class TitleParser(PropertyParserInterface):
         self.max_first_x_lines = 40
         self.fallback_take_first_n_lines = 6
 
+        self.template_extract_max_title_len = 700
+        self.template_extract_low_confidence_no_end_len = 100
+
     def __take_first_n_lines(self, n: int) -> str:
         return " ".join(self.lines[:n])
 
@@ -48,7 +51,7 @@ class TitleParser(PropertyParserInterface):
         title_start = magic_phrase_start_pos + len(magic_phrase_start)
         title_end = b.find(magic_phrase_end, title_start)
 
-        if title_end - title_start > 700:
+        if title_end - title_start > self.template_extract_max_title_len:
             # This is most likely FP. The longest title from dataset is 430 characters long.
             return "", False
 
@@ -57,10 +60,10 @@ class TitleParser(PropertyParserInterface):
                 return b[title_start:title_end], True
             return "", False
 
-        if title_end == -1 or title_end - title_start > 700:
+        if title_end == -1 or title_end - title_start > self.template_extract_max_title_len:
             title_end = b.find(".", title_start)
         if title_end == -1:
-            title_end = title_end + 100
+            title_end = title_end + self.template_extract_low_confidence_no_end_len
         # print(b[title_start:title_end])
         return b[title_start:title_end], True
 
