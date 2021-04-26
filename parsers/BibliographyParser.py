@@ -11,12 +11,12 @@ class BibliographyParser(PropertyParserInterface):
         # (\[([^\s]*)\]) group tries to find a left square braket '[' with any character(s) inside the brakets 
         # apart from newline and spaces. This group returns square brakets with value inside. Also you can use 
         # the group inside to get the value from inside the square brakets.
-        # The square brakets should be followed by at least two spaces - '[^\S\n]{2,}'. Python does not have \h param.
+        # The square brakets should be followed by at least one space - '[^\S\n]+'. Python does not have \h param.
         # The last regex group - ([\s\S]*?(?=\n{2,}|\n[^\S\n]*\n|\[))") tries to find any sequence of characters 
         # including newline and spaces. But it is limited to two the newline delimiters or empty line -\n[^\S\n]*\n,
         # or just left square braket '['.
         super().__init__(lines)
-        self.globalPattern = re.compile(r"(\[([^\s]*)\])[^\S\n]{2,}([\s\S]*?(?=\n{2,}|\n[^\S\n]*\n|\[))")
+        self.globalPattern = re.compile(r"(\[([^\s]*)\])[^\S\n]+([\s\S]*?(?=\n{2,}|\n[^\S\n]*\n|\[))")
         # Removes redundant spaces, tabs and new lines
         self.postprocessPattern = re.compile(r"\s+")
         # We assume that bibliography is always somewhere at the end of the document to have less false positives.
