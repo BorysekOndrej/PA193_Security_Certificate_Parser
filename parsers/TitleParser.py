@@ -1,5 +1,6 @@
 import re
 from typing import List, Dict, Tuple
+from loguru import logger
 
 from PropertyParserInterface import PropertyParserInterface
 
@@ -32,30 +33,7 @@ class TitleParser(PropertyParserInterface):
         return a
 
     def __fallback(self) -> str:
-        return self.take_second_non_empty_line_segment()
         return self.__take_first_n_lines(self.fallback_take_first_n_lines)
-
-    def take_second_non_empty_line_segment(self) -> str:
-        logger.warning("FALLBACK take_second_non_empty_line_segment used")
-        a = self.lines[:20]
-        for i in range(len(a)):
-            a[i] = self.basic_transform(a[i])
-
-        break_on_next_empty_line = False
-        a = list(map(lambda x: x.strip(), a))
-
-        answer = ""
-
-        for i in range(len(a)):
-            if len(a[i]):
-                break_on_next_empty_line = True
-                continue
-            if break_on_next_empty_line:
-                answer = " ".join(a[:i])
-
-        answer = answer.strip()
-        logger.debug(answer)
-        return answer
 
     def check_correct_solution_is_somewhere_in_there(self):
         a = TitleParser.basic_transform("\n".join(self.lines[:self.max_first_x_lines]))
@@ -95,10 +73,12 @@ class TitleParser(PropertyParserInterface):
             # ("The evaluation of the product ", " was conducted by "),
             # ("The title of this document is ", ".\n")
         ]
+
         for x in templates:
             title, found = self.extract_from_template(x[0], x[1], high_confidence_only=True)
             if found:
                 return title, True
+
         return "", False
 
     def parse(self) -> str:
