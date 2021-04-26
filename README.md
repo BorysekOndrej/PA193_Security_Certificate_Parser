@@ -17,3 +17,11 @@ git submodule update
 
 python3 ParseDocument.py
 ```
+
+
+Command to update submodules (currently just the dataset) link to HEAD of remote.
+If you want to also push this update to server, don't forget commit and push.
+
+```sh
+git submodule update --recursive --remote
+```
