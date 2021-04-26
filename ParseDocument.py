@@ -13,7 +13,7 @@ from parsers.TitleParser import TitleParser
 from parsers.TableOfContentsParser import TableOfContentsParser
 from parsers.RevisionsParser import RevisionsParser
 
-from config import OUTPUT_FOLDER, INJECT_CORRECT_SOLUTION, LOG_LEVEL
+from config import LOG_LEVEL
 
 
 class ParsingResult:
@@ -61,7 +61,7 @@ class ParseDocument:
         for field_name in self.parsers:
             parser_instance = self.parsers[field_name](self.lines)
 
-            if INJECT_CORRECT_SOLUTION:
+            if self._correct_solution:
                 try:
                     parser_instance.inject_correct_solution(getattr(self._correct_solution, field_name))
                 except:
@@ -77,23 +77,6 @@ class ParseDocument:
             self.complete_parse()
         return self.result
 
-
-def main():
-    utils.mkdir(OUTPUT_FOLDER)
-
-    for input_filename in utils.list_input_files():
-        lines = utils.load_file(input_filename)
-
-        correct_json_dict = json.loads(" ".join(
-            utils.load_file(utils.input_filename_to_expected_output_filename(input_filename))
-        ))
-        pd = ParseDocument(lines, correct_solution=correct_json_dict)
-        parsing_result: ParsingResult = pd.get_results()
-        
-        with open(utils.input_filename_to_our_output_filename(input_filename), "w", encoding="utf8") as f:
-            f.write(parsing_result.make_json())
-    
-    test_our_implementation.main()
 
 
 if __name__ == "__main__":
