@@ -67,7 +67,10 @@ class ParseDocument:
                 except:
                     pass
 
-            setattr(self.result, field_name, parser_instance.parse())
+            try:
+                setattr(self.result, field_name, parser_instance.parse())
+            except Exception as e:
+                logger.error(f"An exception escaped parser of {field_name}. Using default empty result instead.")
 
     def get_results(self) -> ParsingResult:
         if not self.complete_parse_started:
