@@ -12,6 +12,21 @@ import utils
 from ParseDocument import ParseDocument, ParsingResult
 
 
+def cli_entrypoint():
+    logger.remove()
+    logger.add(sys.stderr, level=config.LOG_LEVEL)
+    filename_tuples = process_cli_arguments()
+
+    logger.debug(filename_tuples)
+
+    number_of_correct_files_to_inject = sum(map(lambda x: bool(x[2]), filename_tuples))
+    if number_of_correct_files_to_inject:
+        logger.debug("There are some files with correct output, that will be injected to the parsers. This should only be used during development.")
+
+    evaluate_files(filename_tuples)
+    run_official_scorer(filename_tuples)
+
+
 def process_cli_arguments() -> List[Tuple[str, str, Optional[str]]]:
     parser = argparse.ArgumentParser(description='Parse certificates from txt to structured JSON.')
 
@@ -96,21 +111,6 @@ def folder_flags_parsing(args) -> List[Tuple[str, str, Optional[str]]]:
         answer.append((single_filename, output_filename, correct_filename))
 
     return answer
-
-
-def cli_entrypoint():
-    logger.remove()
-    logger.add(sys.stderr, level=config.LOG_LEVEL)
-    filename_tuples = process_cli_arguments()
-
-    logger.debug(filename_tuples)
-
-    number_of_correct_files_to_inject = sum(map(lambda x: bool(x[2]), filename_tuples))
-    if number_of_correct_files_to_inject:
-        logger.debug("There are some files with correct output, that will be injected to the parsers. This should only be used during development.")
-
-    evaluate_files(filename_tuples)
-    run_official_scorer(filename_tuples)
 
 
 def evaluate_files(filename_tuples: List[Tuple[str, str, Optional[str]]]) -> None:
