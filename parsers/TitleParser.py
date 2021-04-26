@@ -10,7 +10,7 @@ class TitleParser(PropertyParserInterface):
     def __init__(self, lines: List[str]):
         super().__init__(lines)
         self.max_first_x_lines = 40
-        self.fallback_take_first_n_lines = 5
+        self.fallback_take_first_n_lines = 6
 
     def __take_first_n_lines(self, n: int) -> str:
         return " ".join(self.lines[:n])
