@@ -16,24 +16,21 @@ class TitleParser(PropertyParserInterface):
         self.template_extract_low_confidence_no_end_len = 100
 
     def parse(self) -> str:
-        # print(self.check_correct_solution_is_somewhere_in_there())
+        try:
+            title, found = self.try_templates()
+            if found:
+                return title.strip()
+        except Exception as e:
+            logger.error(f"Title template matching caused exception. Continuing without it. (exception: {e}")
 
-        title, found = self.try_templates()
-        if found:
-            self.result = title.strip()
-            return self.result
-
-        answer = TitleParser.basic_transform(self.__fallback())
-        # print(answer)
-        # print(self._correct_solution)
-        # print()
-        self.result = answer.strip()
-        return self.result
-
+        try:
+            return TitleParser.basic_transform(self.__fallback()).strip()
+        except Exception as e:
+            logger.error(f"Title fallback caused exception. Returning empty result. (exception: {e}")
+            return ""
 
     def __take_first_n_lines(self, n: int) -> str:
         return " ".join(self.lines[:n])
-
 
     @staticmethod
     def basic_transform(a: str) -> str:
