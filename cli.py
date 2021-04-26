@@ -115,6 +115,7 @@ def folder_flags_parsing(args) -> List[Tuple[str, str, Optional[str]]]:
 
 def evaluate_files(filename_tuples: List[Tuple[str, str, Optional[str]]]) -> None:
     for single_file_tuple in filename_tuples:
+        logger.debug(single_file_tuple)
         input_filename, output_filename, correct_filename = single_file_tuple
 
         try:
