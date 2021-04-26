@@ -69,6 +69,8 @@ class TitleParser(PropertyParserInterface):
              ". The developer"),
             ("The Target of Evaluation (TOE) is called: ",
              " The following table"),
+            # ("The evaluation of the product ", " was conducted by "),
+            # ("The title of this document is ", ".\n")
         ]
         for x in templates:
             title, found = self.extract_from_template(x[0], x[1], high_confidence_only=True)
