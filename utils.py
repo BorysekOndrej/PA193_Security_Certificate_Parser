@@ -1,34 +1,27 @@
 import json
 import glob
+import os
 from typing import List
 from pprint import pprint
-from os.path import basename
 from pathlib import Path
-
-from config import INPUT_FOLDER, OUTPUT_FOLDER
 
 
 def convert_dict_to_json_string(a: dict) -> str:
     return json.dumps(a, sort_keys=True, indent=4)
 
 
-def list_input_files() -> List[str]:
-    return glob.glob(f"{INPUT_FOLDER}/*.txt")
+def list_input_files(input_folder: str) -> List[str]:
+    return glob.glob(f"{input_folder}/*.txt")
 
 
-def input_filename_to_expected_output_filename(input_filename: str) -> str:
-    return input_filename[:-4]+'.json' # removes .txt and adds .json
+def filename_remove_extension(input_filename: str) -> str:
+    return os.path.splitext(input_filename)[0]
 
 
-def input_filename_to_our_output_filename(input_filename: str) -> str:
-    return f'{OUTPUT_FOLDER}/'+basename(input_filename[:-4]+".json")
-
-
-def example_of_names():
-    a = list_input_files()[0]
-    print(a)
-    print(input_filename_to_expected_output_filename(a))
-    print(input_filename_to_our_output_filename(a))
+def filename_from_path(input_filename: str) -> str:
+    # warning: be carefull about things ending with /
+    # https://docs.python.org/3/library/os.path.html#os.path.basename
+    return os.path.basename(input_filename)
 
 
 def mkdir(path: str):
@@ -52,7 +45,6 @@ def normalize_json_file(input_filename: str):
 
 
 def main():
-    example_of_names()
     pass
 
 
