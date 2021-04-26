@@ -38,7 +38,7 @@ class TitleParser(PropertyParserInterface):
         a = TitleParser.basic_transform("\n".join(self.lines[:self.max_first_x_lines]))
         return self._correct_solution in a
 
-    def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str) -> Tuple[str, bool]:
+    def extract_from_template(self, magic_phrase_start: str, magic_phrase_end: str, high_confidence_only: bool = True) -> Tuple[str, bool]:
         b = self.canon_text
 
         if magic_phrase_start not in b:
@@ -46,10 +46,20 @@ class TitleParser(PropertyParserInterface):
         magic_phrase_start_pos = b.find(magic_phrase_start)
         title_start = magic_phrase_start_pos + len(magic_phrase_start)
         title_end = b.find(magic_phrase_end, title_start)
-        if title_end == -1 or title_end - title_start > 150:
+
+        if title_end - title_start > 700:
+            # This is most likely FP. The longest title from dataset is 430 characters long.
+            return "", False
+
+        if high_confidence_only:
+            if title_end > title_start:
+                return b[title_start:title_end], True
+            return "", False
+
+        if title_end == -1 or title_end - title_start > 700:
             title_end = b.find(".", title_start)
         if title_end == -1:
-            title_end = title_end + 50
+            title_end = title_end + 100
         # print(b[title_start:title_end])
         return b[title_start:title_end], True
 
@@ -61,7 +71,7 @@ class TitleParser(PropertyParserInterface):
              " The following table"),
         ]
         for x in templates:
-            title, found = self.extract_from_template(x[0], x[1])
+            title, found = self.extract_from_template(x[0], x[1], high_confidence_only=True)
             if found:
                 return title, True
         return "", False
