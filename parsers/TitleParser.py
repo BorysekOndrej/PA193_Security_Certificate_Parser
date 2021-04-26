@@ -15,6 +15,22 @@ class TitleParser(PropertyParserInterface):
         self.template_extract_max_title_len = 700
         self.template_extract_low_confidence_no_end_len = 100
 
+    def parse(self) -> str:
+        # print(self.check_correct_solution_is_somewhere_in_there())
+
+        title, found = self.try_templates()
+        if found:
+            self.result = title.strip()
+            return self.result
+
+        answer = TitleParser.basic_transform(self.__fallback())
+        # print(answer)
+        # print(self._correct_solution)
+        # print()
+        self.result = answer.strip()
+        return self.result
+
+
     def __take_first_n_lines(self, n: int) -> str:
         return " ".join(self.lines[:n])
 
@@ -83,19 +99,3 @@ class TitleParser(PropertyParserInterface):
                 return title, True
 
         return "", False
-
-    def parse(self) -> str:
-        # print(self.check_correct_solution_is_somewhere_in_there())
-
-        title, found = self.try_templates()
-        if found:
-            self.result = title.strip()
-            return self.result
-
-        answer = TitleParser.basic_transform(self.__fallback())
-        # print(answer)
-        # print(self._correct_solution)
-        # print()
-        self.result = answer.strip()
-        return self.result
-
