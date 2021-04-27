@@ -6,15 +6,12 @@ import sys
 import argparse
 from typing import Tuple, List, Optional
 
-import config
 import test_our_implementation
 import utils
 from ParseDocument import ParseDocument, ParsingResult
 
 
 def cli_entrypoint():
-    logger.remove()
-    logger.add(sys.stderr, level=config.LOG_LEVEL)
     filename_tuples = process_cli_arguments()
 
     check_folders_existance(filename_tuples, create_non_existent_folders=True)
@@ -30,6 +27,8 @@ def cli_entrypoint():
 
 
 def process_cli_arguments() -> List[Tuple[str, str, Optional[str]]]:
+    log_level = "INFO"
+
     parser = argparse.ArgumentParser(description='Parse certificates from txt to structured JSON.')
 
     parser.add_argument('-i', '--input_file', help='A single input TXT file which should be parsed.')
@@ -42,21 +41,23 @@ def process_cli_arguments() -> List[Tuple[str, str, Optional[str]]]:
     parser.add_argument('--correct_folder',
                         help='Debug only: Path to folder which contains the expected/correct JSONs.')
 
-    parser.add_argument('--log_level', default=config.LOG_LEVEL, help='What Log level to use for the err output.')
+    parser.add_argument('--log_level', default=log_level, help='What Log level to use for the err output. (TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL)')
     args = parser.parse_args()
+
+    logger.remove()
+    logger.add(sys.stderr, level=args.log_level)
 
     some_file_flag = args.input_file or args.output_file or args.correct_file
     some_folder_flag = args.input_folder or args.output_folder or args.correct_folder
 
     if not some_file_flag and not some_folder_flag:
         logger.error("You need to set either file or folder mode.")
+        parser.print_help()
         sys.exit(1)
 
     if some_file_flag and some_folder_flag:
         logger.error("Modes for files and folder are mutually exclusive. Use one or the other. Use one or the other.")
         sys.exit(1)
-
-    config.LOG_LEVEL = args.log_level
 
     if some_file_flag:
         return file_flags_parsing(args)
