@@ -1,6 +1,5 @@
 import dataset.output_compare as official_tester
 import utils
-import math
 from os.path import basename
 from pprint import pprint
 from loguru import logger

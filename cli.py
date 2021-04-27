@@ -6,7 +6,7 @@ import sys
 import argparse
 from typing import Tuple, List, Optional
 
-import test_our_implementation
+import score_results_against_official
 import utils
 from ParseDocument import ParseDocument, ParsingResult
 
@@ -175,7 +175,7 @@ def run_official_scorer(filename_tuples: List[Tuple[str, str, Optional[str]]]) -
         only_correctable_ones = list(filter(lambda x: x[2], filename_tuples))
         if len(only_correctable_ones) != len(filename_tuples):
             logger.info("Not all outputs have their expected output counterparts. Only those that do will be scored by the official tester.")
-        test_our_implementation.main(only_correctable_ones)
+        score_results_against_official.main(only_correctable_ones)
     except Exception as e:
         logger.error(f"Attempt at scoring failed. Skipping it. (exception: {e})")
 
