@@ -5,6 +5,8 @@ import sys
 from ParseDocument import ParseDocument, ParsingResult
 
 pd = ParseDocument([], correct_solution=None)
+sys.stdin.reconfigure(encoding='ascii')
+
 afl.init()
 pd = ParseDocument(sys.stdin.readlines(), correct_solution=None)
 parsing_result: ParsingResult = pd.get_results()

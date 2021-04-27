@@ -133,4 +133,4 @@ dmypy.json
 .pyre/
 
 # AFL results
-fuzz/fuzzing-results/
+fuzz/fuzzing-results*
