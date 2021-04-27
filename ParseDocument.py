@@ -1,19 +1,13 @@
 from typing import List, Dict, Optional, Tuple
-import json
 from loguru import logger
-import sys
 
 import utils
-
-import test_our_implementation
 
 from parsers.VersionsParser import VersionsParser
 from parsers.BibliographyParser import BibliographyParser
 from parsers.TitleParser import TitleParser
 from parsers.TableOfContentsParser import TableOfContentsParser
 from parsers.RevisionsParser import RevisionsParser
-
-from config import LOG_LEVEL
 
 
 class ParsingResult:
@@ -63,9 +57,9 @@ class ParseDocument:
 
             if self._correct_solution:
                 try:
-                except:
-                    pass
                     parser_instance.inject_correct_solution(self._correct_solution.get(field_name, None))
+                except Exception as e:
+                    logger.debug(f"An exception during injection of solution for {field_name}. Continuing the parser without the correct solution. (exception: {e})")
 
             try:
                 setattr(self.result, field_name, parser_instance.parse())
@@ -78,8 +72,6 @@ class ParseDocument:
         return self.result
 
 
-
 if __name__ == "__main__":
-    logger.remove()
-    logger.add(sys.stderr, level=LOG_LEVEL)
-    main()
+    logger.warning("This file has an empty main. Use CLI or include it from a different file.")
+

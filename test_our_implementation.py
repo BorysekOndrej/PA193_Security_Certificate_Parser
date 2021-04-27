@@ -78,5 +78,5 @@ def main(filename_tuples: List[Tuple[str, str, Optional[str]]]):
 
 
 if __name__ == "__main__":
-    main()
+    logger.warning("This file has an empty main. Use CLI or include it from a different file.")
 
