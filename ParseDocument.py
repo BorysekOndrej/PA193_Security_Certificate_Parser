@@ -63,9 +63,9 @@ class ParseDocument:
 
             if self._correct_solution:
                 try:
-                    parser_instance.inject_correct_solution(getattr(self._correct_solution, field_name))
                 except:
                     pass
+                    parser_instance.inject_correct_solution(self._correct_solution.get(field_name, None))
 
             try:
                 setattr(self.result, field_name, parser_instance.parse())
