@@ -17,6 +17,8 @@ def cli_entrypoint():
     logger.add(sys.stderr, level=config.LOG_LEVEL)
     filename_tuples = process_cli_arguments()
 
+    check_folders_existance(filename_tuples, create_non_existent_folders=True)
+
     logger.debug(filename_tuples)
 
     number_of_correct_files_to_inject = sum(map(lambda x: bool(x[2]), filename_tuples))
@@ -111,6 +113,21 @@ def folder_flags_parsing(args) -> List[Tuple[str, str, Optional[str]]]:
         answer.append((single_filename, output_filename, correct_filename))
 
     return answer
+
+
+def check_folders_existance(filename_tuples: List[Tuple[str, str, Optional[str]]], create_non_existent_folders=False):
+    unique_folder = set()
+    for x in filename_tuples:
+        output_filename_path = x[1]
+        output_folder_path = os.path.dirname(output_filename_path)
+        unique_folder.add(output_folder_path)
+
+    for x in unique_folder:
+        if not os.path.isdir(x):
+            logger.error(f"One of the output folders, doesn't exist: {x}")
+            if create_non_existent_folders:
+                logger.debug("Trying to create the output folder")
+                utils.mkdir(x)
 
 
 def evaluate_files(filename_tuples: List[Tuple[str, str, Optional[str]]]) -> None:
