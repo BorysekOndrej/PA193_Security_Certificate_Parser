@@ -170,15 +170,17 @@ class RevisionsParser(PropertyParserInterface):
         # Description is always the last
         table.columns = [*table.columns[:-1], 'description']
         # remove unused columns
-        table = table[table.columns.intersection(allowed_cols)]
+        resulting_table = table[table.columns.intersection(allowed_cols)].copy(deep=True)
         # Postprocess data
         # If version and description columns were not detected, this table is bad
-        if not ('version' in table and 'description' in table):
+        if not ('version' in resulting_table and 'description' in resulting_table):
             return []
         # Clean-up of values
-        table['version'] = table['version'].map(self.process_ver)
-        table['description'] = table['description'].map(self.process_desc)
-        return table
+        #old_table = table.copy(deep=True)
+        resulting_table.loc[:,'version'] = resulting_table['version'].map(self.process_ver)
+        resulting_table.loc[:,'description'] = resulting_table['description'].map(self.process_desc)
+        
+        return resulting_table
 
     def dataframe_to_dict(self, table: pd.DataFrame) -> List[dict]:
         """ Convert dataframe to dictionary. Accepts only columns named
