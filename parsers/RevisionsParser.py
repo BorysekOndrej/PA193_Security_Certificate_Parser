@@ -17,18 +17,11 @@ class RevisionsParser(PropertyParserInterface):
         self.versionPattern = re.compile(r"([0-9]+[\.][0-9]+)")
 
     def find_keywords(self, lines: List[str], keywords: List[str]) -> list:
+        """ Find keywords in text, return list of line numbers """
         subs = [string.lower() for string in keywords]
         # Find line indexes where the substring is
         start_idxs = [i - 1 for i, line in enumerate(lines) if any(map(line.lower().__contains__, subs))]
         return start_idxs
-
-    def find_by_pattern(self, lines: List[str]) -> list:
-        out = []
-        for i in range(2, 4):
-            pattern = re.compile(self.columnsPattern % (i - 1))
-            start_idxs = [i for i, line in enumerate(lines) if len(re.findall(pattern, line)) > 0]
-            out.extend(start_idxs)
-        return out
 
     def is_table_header(self, string: str, keywords: List[str]):
         """ Check line if it can be a table header """
@@ -38,9 +31,7 @@ class RevisionsParser(PropertyParserInterface):
             return False
         # Check if does not contain numbers or symbols
         is_alpha_or_space = all(c.isalpha() or c.isspace() for c in string)
-        if not is_alpha_or_space: return False 
-        # Keywords score TODO: add some logic for scoring
-        #[score := score + 1 for keyword in keywords if(keyword in string2)]
+        if not is_alpha_or_space: return False
         return True
 
     def extract_formatting_params(self, line: str) -> List[int]:
@@ -55,8 +46,9 @@ class RevisionsParser(PropertyParserInterface):
     def most_frequent(self, List):
         return max(set(List), key = List.count)
 
-    def extract_table(self, lines: List[str], number_of_cols: int, pattern):
-        """ Tries to extract two-column table """
+    def extract_table(self, lines: List[str], number_of_cols: int, pattern: str):
+        """ Tries to extract table with given number of columns using 
+            the given regex pattern """
         table_header_keywords = ['Date', 'Description', 'Rev', 'Revision', 'Version']
         table_header = prev_line_format = table = []
         table_header_found = False
@@ -87,9 +79,7 @@ class RevisionsParser(PropertyParserInterface):
             if len(result) == 0 or len(re.findall("[\.]{4,}", line)) > 0:
                 false_lines += 1
                 continue
-            # TODO: work more with header. What if no header? 
             if not table_header_found and self.is_table_header(line, table_header_keywords):
-                #columns = re.split(r" {2,}", line)
                 if len(columns) == number_of_cols:
                     table_header = columns
                     table_header_found = True
@@ -101,7 +91,6 @@ class RevisionsParser(PropertyParserInterface):
             # Find start indexes
             prev_line_format = self.extract_formatting_params(line)
             false_lines = 0
-        # TODO: make function fully on dataframe
         if table_header_found:
             return pd.DataFrame(table, columns=table_header)
         else:
@@ -169,14 +158,13 @@ class RevisionsParser(PropertyParserInterface):
                 table.rename(columns={col : 'date'}, inplace=True)
         # Description is always the last
         table.columns = [*table.columns[:-1], 'description']
-        # remove unused columns
+        # Remove unused columns
         resulting_table = table[table.columns.intersection(allowed_cols)].copy(deep=True)
         # Postprocess data
         # If version and description columns were not detected, this table is bad
         if not ('version' in resulting_table and 'description' in resulting_table):
             return []
         # Clean-up of values
-        #old_table = table.copy(deep=True)
         resulting_table.loc[:,'version'] = resulting_table['version'].map(self.process_ver)
         resulting_table.loc[:,'description'] = resulting_table['description'].map(self.process_desc)
         
@@ -201,6 +189,7 @@ class RevisionsParser(PropertyParserInterface):
         return out
 
     def parse(self) -> List[dict]:
+        """ Main parsing function """
         keywords = ['Revision History', 'Version Control']
         indexes = self.find_keywords(self.lines, keywords)
         table = self.find_table(indexes, self.lines)
