@@ -1,7 +1,0 @@
-Revision History
-
-     Date          Version                          Change Description
-
-  2017-01-27           1.0   Initial version.
-
-  2020-10-21           4.1   final version
