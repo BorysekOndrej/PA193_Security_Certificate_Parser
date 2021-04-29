@@ -1,0 +1,10 @@
+Revision History
+
+ Date                     Index                 Author                                                  Revision
+
+                                                                             Initial version based on the full security target
+    11/06/2018                      1.0                  IDEMIA
+                                                                             (Reference: 2017_2000032696, Version: 1.5)
+                                                                             (Reference: 2017_2000032696, Version: 1.6):
+    30/01/2019                      1.1                  IDEMIA                  - JCOP 3 Platform CC certifcate updated to
+                                                                                    CC-18-98209/2.

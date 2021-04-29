@@ -1,0 +1,26 @@
+13. Bibliography
+[2]   Common Methodology for Information Technology Security Evaluation (CEM),
+      Evaluation Methodology, Version 3.1, Rev. 5, April 2017,
+      https://www.commoncriteriaportal.org
+[3]   BSI certification: Scheme documentation describing the certification process (CC-
+      Produkte) and Scheme documentation on requirements for the Evaluation Facility,
+      approval and licencing (CC-Stellen), https://www.bsi.bund.de/zertifizierung
+
+
+
+
+                                                                                          21 / 28
+
+Certification Report                                                                     BSI-DSZ-CC-1051-2019
+
+
+
+
+[4]        Application Notes and Interpretations of the Scheme (AIS) as relevant for the TOE 7
+           https://www.bsi.bund.de/AIS
+[12]       SmartMX2 P61N1M3 Secure high-performance mobile controller Product Data
+           Sheet, Version 3.1, 2014-09-02, NXP Semiconductors
+
+7
+    specifically
+       o    AIS 1, Version 14, Durchfuhrung der Ortsbesichtigung in der Entwicklungsumgebung des Herstellers
