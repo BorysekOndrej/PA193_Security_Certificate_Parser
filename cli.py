@@ -141,6 +141,9 @@ def evaluate_files(filename_tuples: List[Tuple[str, str, Optional[str]]]) -> Non
         except FileNotFoundError:
             logger.warning(f"The input file {input_filename} does not exist. Skipping it's evaluation.")
             continue
+        except UnicodeDecodeError:
+            logger.warning(f"The input file {input_filename} contains characters that can't be decoded.")
+            continue
 
         correct_json_dict = None
         if correct_filename:
