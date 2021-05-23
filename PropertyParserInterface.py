@@ -4,7 +4,6 @@ from typing import List
 class PropertyParserInterface:
     def __init__(self, lines: List[str]):
         self.lines: List[str] = lines
-        self.canon_text: str = PropertyParserInterface.canonize_string("\n".join(lines))
         self.result = None
 
         # This field might contain correct solution loaded from the dataset. It's here for sanity checks and exploratory

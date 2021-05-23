@@ -9,6 +9,7 @@ class TitleParser(PropertyParserInterface):
     """ Title parser"""
     def __init__(self, lines: List[str]):
         super().__init__(lines)
+        self.canon_text: str = PropertyParserInterface.canonize_string("\n".join(lines))
         self.max_first_x_lines = 40
         self.fallback_take_first_n_lines = 6
 
