@@ -1,2 +1,2 @@
-loguru
-pandas
+loguru==0.5.3
+pandas==1.2.4
